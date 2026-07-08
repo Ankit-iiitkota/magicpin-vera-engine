@@ -12,6 +12,7 @@ Suppression keys: sup:{suppression_key}
 Conversation:     conv:{conversation_id}
 Seen-body hashes: seen:{conversation_id}:{body_hash}
 """
+
 from __future__ import annotations
 
 import json
@@ -122,11 +123,11 @@ class BaseContextStore(ABC):
     # ── Default TTLs (seconds) ────────────────────────────────────────────────
 
     SCOPE_TTL: dict[str, int] = {
-        "category": 86_400,      # 24 h
-        "merchant": 21_600,      # 6 h
-        "customer": 21_600,      # 6 h
-        "trigger": 86_400,       # 24 h (overridden by trigger.expires_at in Phase 2)
-        "conversation": 172_800, # 48 h
+        "category": 86_400,  # 24 h
+        "merchant": 21_600,  # 6 h
+        "customer": 21_600,  # 6 h
+        "trigger": 86_400,  # 24 h (overridden by trigger.expires_at in Phase 2)
+        "conversation_state": 172_800,  # 48 h — ConversationStore's dedicated scope
     }
     DEFAULT_TTL: int = 21_600  # 6 h fallback for unknown scopes
 

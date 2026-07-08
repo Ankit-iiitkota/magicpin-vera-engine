@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./.venv/Scripts/python -m black --check tests/integration/test_api_context.py)",
+      "Bash(./.venv/Scripts/python -m ruff check tests/integration/test_api_context.py)"
+    ]
+  }
+}

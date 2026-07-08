@@ -12,14 +12,20 @@ Usage (called once in vera.main lifespan):
     ...
     await store.close()  # on shutdown
 """
+
 from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import structlog
 
-from vera.config import Settings
-from vera.store.base_store import BaseContextStore
 from vera.store.memory_store import InMemoryContextStore
 from vera.store.redis_store import RedisContextStore
+from vera.store.resilient_store import ResilientContextStore
+
+if TYPE_CHECKING:
+    from vera.config import Settings
+    from vera.store.base_store import BaseContextStore
 
 logger = structlog.get_logger(__name__)
 
@@ -31,6 +37,13 @@ async def create_store(settings: Settings) -> BaseContextStore:
     Tries Redis first. If the connection fails and
     settings.redis_fallback_to_memory is True, returns an InMemoryContextStore.
     Otherwise re-raises the connection error.
+
+    A Redis store that connects successfully here can still fail later —
+    mid-test outages, container restarts, network blips. When
+    redis_fallback_to_memory is True, the Redis store is wrapped in
+    ResilientContextStore so a later failure degrades to an in-memory
+    backend transparently instead of raising through every subsequent
+    request for the rest of the process's life.
     """
     try:
         store = await _connect_redis(settings)
@@ -39,6 +52,8 @@ async def create_store(settings: Settings) -> BaseContextStore:
             backend="redis",
             url=_mask_url(settings.redis_url),
         )
+        if settings.redis_fallback_to_memory:
+            return ResilientContextStore(primary=store, fallback=InMemoryContextStore())
         return store
 
     except Exception as exc:

@@ -20,12 +20,15 @@ from typing import TYPE_CHECKING
 
 import structlog
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
 from vera.api.endpoints import routers
+from vera.api.error_handlers import context_validation_exception_handler
 from vera.config import get_settings
+from vera.store.context_repository import ContextRepository
 from vera.store.store_factory import create_store
 from vera.utils.logging import configure_logging
 
@@ -40,6 +43,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.settings = settings
     app.state.started_at = time.monotonic()
     app.state.store = await create_store(settings)
+    app.state.context_repository = ContextRepository(app.state.store)
 
     logger.info(
         "vera_startup",
@@ -63,6 +67,7 @@ def create_app() -> FastAPI:
     )
     for router in routers:
         app.include_router(router)
+    app.add_exception_handler(RequestValidationError, context_validation_exception_handler)
     return app
 
 

@@ -13,6 +13,7 @@ from fastapi import Request
 
 from vera.config import Settings
 from vera.store.base_store import BaseContextStore
+from vera.store.context_repository import ContextRepository
 
 
 def get_app_settings(request: Request) -> Settings:
@@ -23,6 +24,11 @@ def get_app_settings(request: Request) -> Settings:
 def get_store(request: Request) -> BaseContextStore:
     """Return the active context store (Redis or in-memory fallback)."""
     return request.app.state.store
+
+
+def get_context_repository(request: Request) -> ContextRepository:
+    """Return the app-wide ContextRepository singleton."""
+    return request.app.state.context_repository
 
 
 def get_started_at(request: Request) -> float:

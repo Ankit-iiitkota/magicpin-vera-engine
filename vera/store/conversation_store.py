@@ -4,20 +4,22 @@ vera.store.conversation_store — Conversation state wrapper.
 Provides typed helpers on top of BaseContextStore for managing
 multi-turn conversation state, separate from the four context objects.
 
-Conversation data is stored under the 'conversation' scope:
-    key: ctx:conversation:{conversation_id}
+Conversation data is stored under the 'conversation_state' scope:
+    key: ctx:conversation_state:{conversation_id}
 
 This module is a thin wrapper — the underlying store handles TTL and
 serialisation. Conversation logic (state machine, intent) lives in
 vera.conversation.* and is implemented in Phase 5.
 """
+
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 
-from vera.store.base_store import BaseContextStore
+if TYPE_CHECKING:
+    from vera.store.base_store import BaseContextStore
 
 
 @dataclass
@@ -49,12 +51,8 @@ class ConversationState:
     ended: bool = False
 
     # Audit
-    created_at: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
-    )
-    updated_at: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
-    )
+    created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
+    updated_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -68,11 +66,17 @@ class ConversationStore:
     """
     Typed wrapper around BaseContextStore for conversation state.
 
-    All conversations are stored under scope='conversation'.
+    All conversations are stored under scope='conversation_state'. This
+    is a dedicated namespace, distinct from any scope ContextRepository
+    serves — the two use incompatible envelope formats (ConversationStore
+    writes a raw ConversationState dict; ContextRepository wraps payloads
+    in its own {payload, delivered_at, stored_at} envelope), so they must
+    never share a scope string. ContextRepository enforces this from its
+    side too — see its `_RESERVED_SCOPES` guard.
     TTL: 48 h (172_800 s) — defined in BaseContextStore.SCOPE_TTL.
     """
 
-    SCOPE = "conversation"
+    SCOPE = "conversation_state"
 
     def __init__(self, store: BaseContextStore) -> None:
         self._store = store
@@ -86,7 +90,7 @@ class ConversationStore:
 
     async def save(self, state: ConversationState) -> None:
         """Persist (upsert) a ConversationState."""
-        state.updated_at = datetime.now(timezone.utc).isoformat()
+        state.updated_at = datetime.now(UTC).isoformat()
         await self._store.set(
             scope=self.SCOPE,
             context_id=state.conversation_id,
