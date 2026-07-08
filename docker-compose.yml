@@ -1,0 +1,41 @@
+services:
+  vera:
+    build:
+      context: .
+      target: runtime
+    container_name: vera-engine
+    ports:
+      - "8080:8080"
+    environment:
+      - ENV=development
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_FALLBACK_TO_MEMORY=false
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=json
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - ./vera:/app/vera:ro
+      - ./config:/app/config:ro
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: vera-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:

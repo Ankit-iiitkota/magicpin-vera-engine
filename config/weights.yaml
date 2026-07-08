@@ -1,0 +1,124 @@
+# ── Vera Engine — Scoring Weights ─────────────────────────────────────────────
+# All weights within a global/category block MUST sum to 1.0 (tolerance ±0.001).
+# Verified at startup by ConfigValidator.
+# Implemented in Phase 6 (Weighted Scoring Engine).
+
+# Global defaults — applied to all categories unless overridden
+global:
+  specificity:           0.25
+  category_fit:          0.20
+  merchant_fit:          0.20
+  trigger_relevance:     0.20
+  engagement_compulsion: 0.10
+  language_match:        0.05
+
+# Category-level overrides (replaces global for the named category)
+category_overrides:
+  dentists:
+    specificity:           0.30
+    category_fit:          0.25
+    merchant_fit:          0.20
+    trigger_relevance:     0.15
+    engagement_compulsion: 0.05
+    language_match:        0.05
+
+  salons:
+    specificity:           0.20
+    category_fit:          0.15
+    merchant_fit:          0.25
+    trigger_relevance:     0.20
+    engagement_compulsion: 0.15
+    language_match:        0.05
+
+  restaurants:
+    specificity:           0.25
+    category_fit:          0.15
+    merchant_fit:          0.20
+    trigger_relevance:     0.20
+    engagement_compulsion: 0.15
+    language_match:        0.05
+
+  gyms:
+    specificity:           0.20
+    category_fit:          0.20
+    merchant_fit:          0.25
+    trigger_relevance:     0.20
+    engagement_compulsion: 0.10
+    language_match:        0.05
+
+  pharmacies:
+    specificity:           0.35
+    category_fit:          0.20
+    merchant_fit:          0.15
+    trigger_relevance:     0.25
+    engagement_compulsion: 0.00
+    language_match:        0.05
+
+# Trigger-kind overrides (additive delta applied on top of category weights)
+trigger_overrides:
+  research_digest:
+    specificity: +0.05
+    trigger_relevance: +0.05
+    engagement_compulsion: -0.05
+    language_match: -0.05
+
+  supply_alert:
+    specificity: +0.10
+    trigger_relevance: +0.10
+    engagement_compulsion: -0.10
+    language_match: -0.10
+
+  active_planning_intent:
+    merchant_fit: +0.10
+    engagement_compulsion: +0.05
+    specificity: -0.05
+    language_match: -0.10
+
+  regulation_change:
+    specificity: +0.05
+    trigger_relevance: +0.10
+    engagement_compulsion: -0.05
+    language_match: -0.10
+
+  curious_ask_due:
+    engagement_compulsion: +0.10
+    merchant_fit: +0.05
+    specificity: -0.10
+    language_match: -0.05
+
+  recall_due:
+    merchant_fit: +0.05
+    language_match: +0.10
+    specificity: -0.05
+    trigger_relevance: -0.10
+
+# Compulsion lever bonuses (added to engagement_compulsion dimension score)
+lever_bonuses:
+  social_proof:       0.10
+  asking_merchant:    0.10
+  loss_aversion:      0.08
+  reciprocity:        0.07
+  specificity:        0.06
+  curiosity:          0.05
+  single_binary_cta:  0.05
+
+# Goal → lever affinity (used by CandidateGenerator to pick compulsion foci)
+goal_lever_affinity:
+  SHARE_CLINICAL_KNOWLEDGE:     [specificity, reciprocity, curiosity]
+  ENSURE_COMPLIANCE:            [specificity, loss_aversion]
+  RECOVER_LAPSED_CUSTOMERS:     [loss_aversion, reciprocity]
+  FULFILL_PLANNING_INTENT:      [reciprocity, specificity]
+  INCREASE_FOOTFALL:            [loss_aversion, social_proof, specificity]
+  RENEW_SUBSCRIPTION:           [loss_aversion, specificity]
+  REACTIVATE_ACCOUNT:           [curiosity, loss_aversion]
+  GROW_ONLINE_VISIBILITY:       [social_proof, specificity]
+  SEND_RECALL_REMINDER:         [specificity, reciprocity]
+  SEND_REFILL_REMINDER:         [specificity, loss_aversion]
+  WINBACK_LAPSED_CUSTOMER:      [reciprocity, curiosity]
+  IMPROVE_CUSTOMER_RETENTION:   [reciprocity, social_proof]
+  DRIVE_REPEAT_VISIT:           [reciprocity, loss_aversion]
+  ACQUIRE_NEW_CUSTOMERS:        [social_proof, specificity]
+  COMPLETE_GBP_PROFILE:         [loss_aversion, specificity]
+  SURFACE_TREND:                [curiosity, specificity]
+  LAUNCH_CAMPAIGN:              [loss_aversion, social_proof]
+  CONVERT_TRIAL_TO_PAID:        [reciprocity, loss_aversion]

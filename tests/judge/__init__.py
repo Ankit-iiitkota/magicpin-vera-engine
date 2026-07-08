@@ -1,0 +1,1 @@
+"""Judge-harness compatibility tests."""
