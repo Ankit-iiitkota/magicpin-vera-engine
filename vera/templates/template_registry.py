@@ -17,8 +17,16 @@ from vera.templates.template import Template
 
 __all__ = ["TemplateRegistry"]
 
-_DEFAULT_SHARED_DIR = "vera/templates/yaml/shared"
-_DEFAULT_FALLBACK_DIR = "vera/templates/yaml/fallbacks"
+#: Anchored to this file's own location, not the process's working
+#: directory. A bare relative string here silently returns an empty
+#: registry (see _load_directory's `if not path.exists(): return []`)
+#: whenever the process is started from anywhere other than the repo
+#: root — no exception, just zero templates, which then makes every
+#: FallbackChain.resolve() call raise "no L0/L1/L2 candidate available"
+#: and every /v1/tick trigger silently produce no action.
+_PACKAGE_DIR = Path(__file__).resolve().parent
+_DEFAULT_SHARED_DIR = str(_PACKAGE_DIR / "yaml" / "shared")
+_DEFAULT_FALLBACK_DIR = str(_PACKAGE_DIR / "yaml" / "fallbacks")
 
 
 class TemplateRegistry:

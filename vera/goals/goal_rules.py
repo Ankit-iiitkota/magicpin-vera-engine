@@ -11,6 +11,7 @@ its own well-defined, independently testable load/validate step.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from vera.config import load_yaml
@@ -18,7 +19,10 @@ from vera.goals.goal_context import CANONICAL_GOALS
 
 __all__ = ["GoalRule", "GoalRules"]
 
-_DEFINITIONS_PATH = "vera/goals/yaml/goal_definitions.yaml"
+# Anchored to this file's own location, not the process's working
+# directory — see vera.templates.template_registry's _PACKAGE_DIR
+# comment for why a bare relative string here is fragile.
+_DEFINITIONS_PATH = str(Path(__file__).resolve().parent / "yaml" / "goal_definitions.yaml")
 
 
 @dataclass(frozen=True, slots=True)

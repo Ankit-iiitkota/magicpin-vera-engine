@@ -15,6 +15,7 @@ that same YAML file.
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from vera.config import load_yaml
@@ -27,7 +28,10 @@ if TYPE_CHECKING:
 
 __all__ = ["SignalDetector"]
 
-_DEFINITIONS_PATH = "vera/signals/yaml/signal_definitions.yaml"
+# Anchored to this file's own location, not the process's working
+# directory — see vera.templates.template_registry's _PACKAGE_DIR
+# comment for why a bare relative string here is fragile.
+_DEFINITIONS_PATH = str(Path(__file__).resolve().parent / "yaml" / "signal_definitions.yaml")
 
 # Defaults mirror signal_definitions.yaml's intent; duplicated as literal
 # constants so the detector needs zero file I/O to run deterministically

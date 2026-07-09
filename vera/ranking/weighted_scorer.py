@@ -19,6 +19,7 @@ asks for.
 from __future__ import annotations
 
 import re
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from vera.config import load_yaml
@@ -31,7 +32,11 @@ if TYPE_CHECKING:
 
 __all__ = ["WeightedScorer"]
 
-_WEIGHTS_PATH = "config/weights.yaml"
+# Anchored to the repo root (three levels up from vera/ranking/), not
+# the process's working directory — see
+# vera.templates.template_registry's _PACKAGE_DIR comment for why a
+# bare relative string here is fragile.
+_WEIGHTS_PATH = str(Path(__file__).resolve().parent.parent.parent / "config" / "weights.yaml")
 _DIMENSIONS = (
     "specificity",
     "category_fit",

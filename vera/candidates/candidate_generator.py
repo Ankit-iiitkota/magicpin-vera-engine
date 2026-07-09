@@ -18,6 +18,7 @@ so there's no hallucination risk here regardless of which lever wins.
 
 from __future__ import annotations
 
+from pathlib import Path
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any
 
@@ -34,7 +35,11 @@ if TYPE_CHECKING:
 
 __all__ = ["CandidateGenerator"]
 
-_WEIGHTS_PATH = "config/weights.yaml"
+# Anchored to the repo root (three levels up from vera/candidates/),
+# not the process's working directory — see
+# vera.templates.template_registry's _PACKAGE_DIR comment for why a
+# bare relative string here is fragile.
+_WEIGHTS_PATH = str(Path(__file__).resolve().parent.parent.parent / "config" / "weights.yaml")
 _MAX_CANDIDATES = 5
 _DEFAULT_LEVERS_PER_GOAL = 3
 

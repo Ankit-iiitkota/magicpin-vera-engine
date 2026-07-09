@@ -3,6 +3,10 @@
 # Vocabulary from vocab_allowed (OTC, generic, MRP, expiry, refill, ...);
 # avoids vocab_taboo (miracle cure, guaranteed result, 100% safe, doctor
 # recommended without disclosure, best price without supporting data).
+#
+# Every body follows the same 3-beat structure: a concrete fact from
+# FeatureSet, a business-impact/recommendation sentence that says why
+# it matters, and a short, low-effort CTA.
 templates:
   - id: pharmacies_recover_revenue_specificity
     goal: RECOVER_REVENUE
@@ -12,17 +16,20 @@ templates:
     required_slots: [metric_label, metric_delta_pct]
     body:
       en: >-
-        Hi {{ salutation(owner_first_name, category_slug) }}, {{ metric_label }}
-        is down {{ metric_delta_pct | abs_pct }} this week{% if peer_avg_ctr %} —
-        peer pharmacies in {{ locality }} are converting profile views at
-        {{ peer_avg_ctr | pct }}{% endif %}. Before it costs you repeat-Rx
-        walk-ins, want me to check what's driving it?
+        Hi {{ salutation(owner_first_name, category_slug) }}, your
+        {{ metric_label }} dropped {{ metric_delta_pct | abs_pct }} this
+        week{% if peer_avg_ctr %}, while peer pharmacies in
+        {{ locality }} are converting profile views at
+        {{ peer_avg_ctr | pct }}{% endif %}. That gap usually costs you
+        repeat-Rx walk-ins if it isn't fixed soon. Want me to check what's
+        driving it this week?
       hi_en: >-
         Hi {{ salutation(owner_first_name, category_slug) }}, is hafte
-        {{ metric_label }} {{ metric_delta_pct | abs_pct }} kam hua
-        hai{% if peer_avg_ctr %} — {{ locality }} ke peer pharmacies
-        {{ peer_avg_ctr | pct }} pe convert kar rahe hain{% endif %}.
-        Repeat-Rx walk-ins pe asar padne se pehle, wajah check kar loon?
+        aapke {{ metric_label }} mein {{ metric_delta_pct | abs_pct }} ki
+        giravat aayi hai{% if peer_avg_ctr %}, jab ki {{ locality }} ke
+        peer pharmacies {{ peer_avg_ctr | pct }} pe convert kar rahe
+        hain{% endif %}. Agar theek na kiya toh repeat-Rx walk-ins pe
+        asar padega. Is hafte hi wajah check kar loon?
 
   - id: pharmacies_win_back_customers_reciprocity
     goal: WIN_BACK_CUSTOMERS
@@ -32,19 +39,21 @@ templates:
     required_slots: [customer_name]
     body:
       en: >-
-        Hi {{ salutation(owner_first_name, category_slug) }}, {{ customer_name }}
-        hasn't refilled in a while{% if days_since_last_visit %}
-        ({{ days_since_last_visit }} days){% endif %} — worth a nudge before
-        they switch to another chemist for a chronic-Rx refill. I've
-        drafted a reminder{% if active_offer_title %} with your
+        Hi {{ salutation(owner_first_name, category_slug) }},
+        {{ customer_name }} hasn't refilled in a
+        while{% if days_since_last_visit %} —
+        {{ days_since_last_visit }} days{% endif %}. Chronic-Rx customers
+        who go quiet this long usually switch to another chemist. I've
+        already drafted a reminder{% if active_offer_title %} with your
         {{ active_offer_title }} offer{% endif %} — just say go and I'll
         send it.
       hi_en: >-
-        Hi {{ salutation(owner_first_name, category_slug) }}, {{ customer_name }}
-        ne kaafi din se refill nahi kiya{% if days_since_last_visit %}
-        ({{ days_since_last_visit }} din){% endif %} — chronic-Rx refill ke
-        liye kisi aur chemist na chale jaayein, isliye nudge zaroori hai.
-        Maine reminder taiyar kar diya hai{% if active_offer_title %}
+        Hi {{ salutation(owner_first_name, category_slug) }},
+        {{ customer_name }} ne kaafi din se refill nahi
+        kiya{% if days_since_last_visit %} — {{ days_since_last_visit }}
+        din{% endif %}. Itne din quiet rehne wale chronic-Rx customers
+        aksar kisi aur chemist ke paas chale jaate hain. Maine reminder
+        taiyar kar diya hai{% if active_offer_title %}
         {{ active_offer_title }} offer ke saath{% endif %} — 'go' bolein,
         bhej deti hoon.
 
@@ -59,15 +68,16 @@ templates:
         Hi {{ salutation(owner_first_name, category_slug) }}{% if days_since_last_touch %},
         it's been {{ days_since_last_touch }} days since we last
         spoke{% endif %} and I don't want to keep pinging without being
-        useful — quick one instead: is your counter footfall leaning more
-        OTC walk-ins or chronic-Rx refills this month? I'll tailor what I
-        send around that.
+        useful — I'll tailor what I send around whatever's actually
+        relevant to you right now. Quick one: is your counter footfall
+        leaning more OTC walk-ins or chronic-Rx refills this month?
       hi_en: >-
         Hi {{ salutation(owner_first_name, category_slug) }}{% if days_since_last_touch %},
         {{ days_since_last_touch }} din ho gaye baat kiye{% endif %}, aur
-        bina kaam ki cheez ke ping nahi karna chahti — iske bajaye ek
-        chhota sawaal: is mahine counter footfall zyada OTC walk-ins se
-        hai ya chronic-Rx refills se? Uske hisaab se hi bhejungi.
+        bina kaam ki cheez ke ping nahi karna chahti — jo aapke liye
+        abhi relevant hai, wahi bhejungi. Ek chhota sawaal: is mahine
+        counter footfall zyada OTC walk-ins se hai ya chronic-Rx
+        refills se?
 
   - id: pharmacies_promote_offers_specificity
     goal: PROMOTE_OFFERS
@@ -77,13 +87,16 @@ templates:
     required_slots: [inventory_health]
     body:
       en: >-
-        Hi {{ salutation(owner_first_name, category_slug) }}, you have no
-        live offer right now{% if suggested_offer_title %} —
-        {{ suggested_offer_title }} is usually the strongest repeat-customer
-        driver{% endif %}. Want me to activate it today?
+        Hi {{ salutation(owner_first_name, category_slug) }}, you don't
+        have a live offer right now, which usually means fewer
+        first-time customers convert into repeat
+        buyers{% if suggested_offer_title %}. {{ suggested_offer_title }}
+        is usually the strongest repeat-customer driver{% endif %}. Want
+        me to activate it today?
       hi_en: >-
         Hi {{ salutation(owner_first_name, category_slug) }}, abhi koi
-        live offer nahi hai{% if suggested_offer_title %} —
+        live offer nahi hai, jiski wajah se first-time customers kam
+        repeat buyers bante hain{% if suggested_offer_title %}.
         {{ suggested_offer_title }} repeat-customers laane mein sabse
         strong hota hai{% endif %}. Aaj activate kar doon?
 
@@ -95,17 +108,19 @@ templates:
     required_slots: []
     body:
       en: >-
-        Hi {{ salutation(owner_first_name, category_slug) }}, your profile
-        is {% if not verified %}unverified{% else %}missing
-        {{ missing_fields | join(' and ') if missing_fields else 'a few details' }}{% endif %} —
-        customers searching for a nearby pharmacy likely skip past it.
-        Want me to fix it now?
+        Hi {{ salutation(owner_first_name, category_slug) }}, your
+        profile is {% if not verified %}unverified{% else %}missing
+        {{ missing_fields | join(' and ') if missing_fields else 'a few details' }}{% endif %}.
+        That usually means customers searching for a nearby pharmacy
+        skip past it before they even see your hours. Want me to fix it
+        now — it's a 2-minute update?
       hi_en: >-
         Hi {{ salutation(owner_first_name, category_slug) }}, aapki
         profile {% if not verified %}unverified{% else %}
         {{ missing_fields | join(' aur ') if missing_fields else 'kuch details' }} mein
-        incomplete{% endif %} hai — paas ki pharmacy dhoondh rahe customers
-        aise listings skip kar dete hain. Abhi theek kar doon?
+        incomplete{% endif %} hai. Paas ki pharmacy dhoondh rahe customers
+        aapke hours dekhne se pehle hi aise listings skip kar dete hain.
+        Abhi theek kar doon — 2 minute ka kaam hai?
 
   - id: pharmacies_collect_reviews_social_proof
     goal: COLLECT_REVIEWS
@@ -115,15 +130,18 @@ templates:
     required_slots: []
     body:
       en: >-
-        Hi {{ salutation(owner_first_name, category_slug) }}, your reviews
-        are trending positive{% if top_review_theme %} — customers keep
-        mentioning {{ top_review_theme }}{% endif %}. I've drafted a GBP
-        post around that — want me to publish it?
+        Hi {{ salutation(owner_first_name, category_slug) }}, your
+        reviews are trending positive{% if top_review_theme %}, with
+        customers repeatedly mentioning {{ top_review_theme }}{% endif %}.
+        Highlighting that in a fresh GBP post usually pulls in more
+        new-customer searches. I've already drafted one — want me to
+        publish it?
       hi_en: >-
         Hi {{ salutation(owner_first_name, category_slug) }}, reviews
-        positive trend mein hain{% if top_review_theme %} — customers baar
-        baar {{ top_review_theme }} ka zikar karte hain{% endif %}. Maine
-        ek GBP post taiyar kar diya hai — publish kar doon?
+        positive trend mein hain{% if top_review_theme %}, customers baar
+        baar {{ top_review_theme }} ka zikar kar rahe hain{% endif %}. Isko
+        highlight karta GBP post naye-customer searches badhata hai.
+        Maine ek taiyar kar diya hai — publish kar doon?
 
   - id: pharmacies_increase_sales_specificity
     goal: INCREASE_SALES
@@ -141,9 +159,10 @@ templates:
         your profile views are already up
         {{ views_delta_pct | pct(signed=true) }} this month{% else %}your
         weekend counter footfall typically runs highest for
-        {{ category_slug }} in {{ locality }}{% endif %} — pharmacies
-        without a fresh post tend to miss the window. Reply YES and I'll
-        schedule one today.
+        {{ category_slug }} in {{ locality }}{% endif %}. Pharmacies that
+        post while demand is high usually convert more of it into
+        counter visits; ones without a fresh post tend to miss the
+        window. Reply YES and I'll schedule one today.
       hi_en: >-
         Hi {{ salutation(owner_first_name, category_slug) }},
         {% if trend_query %}'{{ trend_query }}' ki searches
@@ -154,9 +173,10 @@ templates:
         aapke profile views is mahine
         {{ views_delta_pct | pct(signed=true) }} badh chuke hain{% else %}
         weekend counter footfall {{ category_slug }} ke liye {{ locality }}
-        mein sabse zyada hota hai{% endif %} — bina fresh post ke
-        pharmacies yeh window miss kar dete hain. YES bolein, aaj hi post
-        schedule kar deti hoon.
+        mein sabse zyada hota hai{% endif %}. Demand high hone par post
+        karne wale pharmacies zyada counter visits convert karte hain;
+        bina post ke yeh window miss ho jaata hai. YES bolein, aaj hi
+        post schedule kar deti hoon.
 
   - id: pharmacies_increase_visibility_specificity
     goal: INCREASE_VISIBILITY
@@ -171,12 +191,19 @@ templates:
         this week's update: {{ digest_title }}{% if digest_source %}
         ({{ digest_source }}){% endif %}{% else %}, your profile views
         moved {{ views_delta_pct | pct(signed=true) }} this
-        week{% endif %} — want the details{% if competitor_trigger %} on
-        how your listing compares{% endif %}?
+        week{% endif %}. {% if competitor_trigger %}Pharmacies that
+        respond fast to new competition usually hold onto their counter
+        footfall{% else %}Acting on updates like this early usually keeps
+        you ahead of pharmacies that wait{% endif %}. Want the
+        details{% if competitor_trigger %} on how your listing
+        compares{% endif %}?
       hi_en: >-
         Hi {{ salutation(owner_first_name, category_slug) }}{% if competitor_trigger %},
         {{ locality }} ke paas ek nayi pharmacy khuli hai{% elif digest_title %},
         is hafte ka update: {{ digest_title }}{% if digest_source %}
         ({{ digest_source }}){% endif %}{% else %}, is hafte views
-        {{ views_delta_pct | pct(signed=true) }} badle hain{% endif %} —
-        details chahiye?
+        {{ views_delta_pct | pct(signed=true) }} badle hain{% endif %}.
+        {% if competitor_trigger %}Naye competition pe jaldi react karne
+        wale pharmacies apna counter footfall bachate hain{% else %}Aise
+        updates pe jaldi action lene se doosre pharmacies se aage rehte
+        hain{% endif %}. Details chahiye?
