@@ -1,0 +1,49 @@
+templates:
+  - id: recover_revenue_loss_aversion
+    goal: RECOVER_REVENUE
+    levers: [loss_aversion]
+    cta_type: open_ended
+    required_slots: [metric_label, metric_delta_pct]
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, your {{ metric_label }}
+        dropped {{ metric_delta_pct | abs_pct }} this week — before it compounds
+        further, want me to check what changed?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, is hafte aapke
+        {{ metric_label }} mein {{ metric_delta_pct | abs_pct }} ki giravat aayi
+        hai — jaldi dekh lete hain kya wajah hai?
+
+  - id: recover_revenue_specificity
+    goal: RECOVER_REVENUE
+    levers: [specificity]
+    cta_type: open_ended
+    required_slots: [metric_label, metric_delta_pct]
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, {{ metric_label }}
+        down {{ metric_delta_pct | abs_pct }} week-over-week{% if peer_avg_ctr %},
+        while peers in {{ locality }} average {{ peer_avg_ctr | pct }} CTR{% endif %}.
+        Want the breakdown?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, {{ metric_label }}
+        mein {{ metric_delta_pct | abs_pct }} ki kami aayi hai is hafte{% if peer_avg_ctr %},
+        {{ locality }} ke peers {{ peer_avg_ctr | pct }} CTR pe hain{% endif %}.
+        Poora breakdown dekhna chahenge?
+
+  - id: recover_revenue_reciprocity
+    goal: RECOVER_REVENUE
+    levers: [reciprocity]
+    cta_type: binary
+    required_slots: [metric_label, metric_delta_pct]
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, noticed your
+        {{ metric_label }} slipped {{ metric_delta_pct | abs_pct }} this week —
+        I've already pulled the numbers, just say go and I'll show you what's
+        driving it.
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, dekha ki
+        {{ metric_label }} {{ metric_delta_pct | abs_pct }} kam hua hai is
+        hafte — maine numbers nikal liye hain, bas ek 'go' bolein aur main
+        dikha deti hoon kya chal raha hai.

@@ -1,0 +1,166 @@
+# Category-specific templates — Gyms & Fitness.
+# Voice: energetic_disciplined / coach_to_member (magicpin-ai-challenge/dataset/categories/gyms.json).
+# Vocabulary from vocab_allowed (footfall, membership churn, PT sessions,
+# PR, split, ...); avoids vocab_taboo (guaranteed weight loss, shred in
+# 7 days, miracle transformation, fastest results).
+templates:
+  - id: gyms_recover_revenue_loss_aversion
+    goal: RECOVER_REVENUE
+    category: gyms
+    levers: [loss_aversion, specificity]
+    cta_type: open_ended
+    required_slots: [metric_label, metric_delta_pct]
+    body:
+      en: >-
+        Hi {{ salutation(owner_first_name, category_slug) }}, {{ metric_label }}
+        is down {{ metric_delta_pct | abs_pct }} this week{% if peer_avg_ctr %} —
+        peer gyms in {{ locality }} are converting profile views at
+        {{ peer_avg_ctr | pct }}{% endif %}. Before it shows up as trial
+        drop-off, want me to check what changed?
+      hi_en: >-
+        Hi {{ salutation(owner_first_name, category_slug) }}, is hafte
+        {{ metric_label }} {{ metric_delta_pct | abs_pct }} kam hua
+        hai{% if peer_avg_ctr %} — {{ locality }} ke peer gyms
+        {{ peer_avg_ctr | pct }} pe convert kar rahe hain{% endif %}. Trial
+        drop-off dikhne se pehle, wajah check kar loon?
+
+  - id: gyms_win_back_customers_reciprocity
+    goal: WIN_BACK_CUSTOMERS
+    category: gyms
+    levers: [reciprocity, loss_aversion]
+    cta_type: binary
+    required_slots: [customer_name]
+    body:
+      en: >-
+        Hi {{ salutation(owner_first_name, category_slug) }}, {{ customer_name }}
+        hasn't checked in for a while{% if days_since_last_visit %}
+        ({{ days_since_last_visit }} days){% endif %} — that streak break
+        is exactly where churn starts. I've drafted a check-in{% if active_offer_title %}
+        with your {{ active_offer_title }} offer{% endif %} — just say go
+        and I'll send it.
+      hi_en: >-
+        Hi {{ salutation(owner_first_name, category_slug) }}, {{ customer_name }}
+        kaafi din se check-in nahi kiya{% if days_since_last_visit %}
+        ({{ days_since_last_visit }} din){% endif %} — yahin se churn shuru
+        hota hai. Maine check-in taiyar kar diya hai{% if active_offer_title %}
+        {{ active_offer_title }} offer ke saath{% endif %} — 'go' bolein,
+        bhej deti hoon.
+
+  - id: gyms_reduce_churn_asking_merchant
+    goal: REDUCE_CHURN
+    category: gyms
+    levers: [asking_merchant, reciprocity]
+    cta_type: open_ended
+    required_slots: []
+    body:
+      en: >-
+        Hi {{ salutation(owner_first_name, category_slug) }}{% if days_since_last_touch %},
+        it's been {{ days_since_last_touch }} days since we last
+        spoke{% endif %} and I don't want to keep pinging without being
+        useful — quick one instead: is your member mix leaning more group
+        classes or 1:1 PT sessions this month? I'll tailor what I send
+        around that.
+      hi_en: >-
+        Hi {{ salutation(owner_first_name, category_slug) }}{% if days_since_last_touch %},
+        {{ days_since_last_touch }} din ho gaye baat kiye{% endif %}, aur
+        bina kaam ki cheez ke ping nahi karna chahti — iske bajaye ek
+        chhota sawaal: is mahine members zyada group classes le rahe hain
+        ya 1:1 PT sessions? Uske hisaab se hi bhejungi.
+
+  - id: gyms_promote_offers_specificity
+    goal: PROMOTE_OFFERS
+    category: gyms
+    levers: [specificity, loss_aversion]
+    cta_type: binary
+    required_slots: [inventory_health]
+    body:
+      en: >-
+        Hi {{ salutation(owner_first_name, category_slug) }}, you have no
+        live offer right now{% if suggested_offer_title %} —
+        {{ suggested_offer_title }} is usually the strongest trial-to-paid
+        converter{% endif %}. Want me to activate it today?
+      hi_en: >-
+        Hi {{ salutation(owner_first_name, category_slug) }}, abhi koi
+        live offer nahi hai{% if suggested_offer_title %} —
+        {{ suggested_offer_title }} trial-to-paid convert karne mein sabse
+        strong hota hai{% endif %}. Aaj activate kar doon?
+
+  - id: gyms_improve_listings_loss_aversion
+    goal: IMPROVE_LISTINGS
+    category: gyms
+    levers: [loss_aversion, specificity]
+    cta_type: binary
+    required_slots: []
+    body:
+      en: >-
+        Hi {{ salutation(owner_first_name, category_slug) }}, your profile
+        is {% if not verified %}unverified{% else %}missing
+        {{ missing_fields | join(' and ') if missing_fields else 'a few details' }}{% endif %} —
+        that's likely costing you trial walk-ins from nearby searches.
+        Want me to fix it now?
+      hi_en: >-
+        Hi {{ salutation(owner_first_name, category_slug) }}, aapki
+        profile {% if not verified %}unverified{% else %}
+        {{ missing_fields | join(' aur ') if missing_fields else 'kuch details' }} mein
+        incomplete{% endif %} hai — isse trial walk-ins kam ho rahe honge.
+        Abhi theek kar doon?
+
+  - id: gyms_collect_reviews_social_proof
+    goal: COLLECT_REVIEWS
+    category: gyms
+    levers: [social_proof, reciprocity]
+    cta_type: binary
+    required_slots: []
+    body:
+      en: >-
+        Hi {{ salutation(owner_first_name, category_slug) }}, your reviews
+        are trending positive{% if top_review_theme %} — members keep
+        mentioning {{ top_review_theme }}{% endif %}. I've drafted a GBP
+        post around that — want me to publish it?
+      hi_en: >-
+        Hi {{ salutation(owner_first_name, category_slug) }}, reviews
+        positive trend mein hain{% if top_review_theme %} — members baar
+        baar {{ top_review_theme }} ka zikar karte hain{% endif %}. Maine
+        ek GBP post taiyar kar diya hai — publish kar doon?
+
+  - id: gyms_increase_sales_specificity
+    goal: INCREASE_SALES
+    category: gyms
+    levers: [specificity, loss_aversion]
+    cta_type: binary
+    required_slots: []
+    body:
+      en: >-
+        Hi {{ salutation(owner_first_name, category_slug) }},
+        {% if festival_days_until %}festival-season sign-ups pick up in the
+        next {{ festival_days_until }} days{% else %}your weekend trial
+        walk-ins typically run highest for {{ category_slug }} in
+        {{ locality }}{% endif %} — gyms without a fresh post tend to miss
+        the window. Want me to schedule one?
+      hi_en: >-
+        Hi {{ salutation(owner_first_name, category_slug) }},
+        {% if festival_days_until %}agle {{ festival_days_until }} din mein
+        festival-season sign-ups badhte hain{% else %}weekend trial
+        walk-ins {{ category_slug }} ke liye {{ locality }} mein sabse
+        zyada hote hain{% endif %} — bina fresh post ke gyms yeh window
+        miss kar dete hain. Ek post schedule kar doon?
+
+  - id: gyms_increase_visibility_specificity
+    goal: INCREASE_VISIBILITY
+    category: gyms
+    levers: [specificity, social_proof]
+    cta_type: open_ended
+    required_slots: []
+    body:
+      en: >-
+        Hi {{ salutation(owner_first_name, category_slug) }}{% if digest_title %},
+        this week's trend: {{ digest_title }}{% if digest_source %}
+        ({{ digest_source }}){% endif %}{% else %}, your profile views
+        moved {{ views_delta_pct | pct(signed=true) }} this
+        week{% endif %} — want the details?
+      hi_en: >-
+        Hi {{ salutation(owner_first_name, category_slug) }}{% if digest_title %},
+        is hafte ka trend: {{ digest_title }}{% if digest_source %}
+        ({{ digest_source }}){% endif %}{% else %}, is hafte views
+        {{ views_delta_pct | pct(signed=true) }} badle hain{% endif %} —
+        details chahiye?

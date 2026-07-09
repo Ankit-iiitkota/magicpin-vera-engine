@@ -11,6 +11,7 @@ Call configure_logging(log_level, log_format) once at application startup
     logger = structlog.get_logger(__name__)
     logger.info("event_name", key=value, ...)
 """
+
 from __future__ import annotations
 
 import logging

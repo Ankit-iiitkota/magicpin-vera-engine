@@ -1,4 +1,5 @@
 """One-shot scaffold for Phase 1 folder structure and stub files."""
+
 from __future__ import annotations
 
 import pathlib
@@ -185,7 +186,9 @@ misc_stubs = {
     "vera/utils/json_utils.py": "Safe JSON parse/serialize helpers. Implemented in Phase 2.",
 }
 for path, note in misc_stubs.items():
-    write_stub(path, f'"""\n{note}\n"""\nfrom __future__ import annotations\n\n__all__: list[str] = []\n')
+    write_stub(
+        path, f'"""\n{note}\n"""\nfrom __future__ import annotations\n\n__all__: list[str] = []\n'
+    )
 
 # ── test stubs ────────────────────────────────────────────────────────────────
 test_stubs = {

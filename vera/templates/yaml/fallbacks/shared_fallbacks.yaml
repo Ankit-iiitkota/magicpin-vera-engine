@@ -1,2 +1,18 @@
-# Level-2 shared generic fallback templates — Implemented in Phase 7.
-fallback_templates: []
+# Level-2 fallback: the absolute last resort — no category voice, no
+# goal-specific facts, nothing that could be wrong. Used only if even
+# the L1 category fallback can't render (e.g. category_slug itself is
+# somehow missing). See vera.fallback.fallback_chain.FallbackChain.
+templates:
+  - id: shared_fallback_last_resort
+    goal: "*"
+    levers: [curiosity]
+    cta_type: none
+    required_slots: []
+    fallback_level: 2
+    body:
+      en: >-
+        Hi {{ owner_first_name or merchant_name }}, just checking in — let me
+        know if there's anything on your profile you'd like help with.
+      hi_en: >-
+        Hi {{ owner_first_name or merchant_name }}, bas check-in kar rahi
+        hoon — profile mein kuch update karna ho toh bata dijiye.

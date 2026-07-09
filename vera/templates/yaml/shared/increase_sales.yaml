@@ -1,0 +1,52 @@
+templates:
+  - id: increase_sales_loss_aversion
+    goal: INCREASE_SALES
+    levers: [loss_aversion]
+    cta_type: binary
+    required_slots: []
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }},
+        {% if festival_days_until %}festival season is
+        {{ festival_days_until }} days out and{% endif %} the weekend rush is
+        coming — merchants without a fresh post tend to miss it. Want me to
+        schedule one?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }},
+        {% if festival_days_until %}festival season {{ festival_days_until }}
+        din door hai aur{% endif %} weekend rush aane wala hai — bina fresh
+        post ke merchants isse miss kar dete hain. Ek post schedule kar doon?
+
+  - id: increase_sales_social_proof
+    goal: INCREASE_SALES
+    levers: [social_proof]
+    cta_type: open_ended
+    required_slots: []
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }},
+        {% if trend_query %}searches for '{{ trend_query }}' are up
+        {{ trend_delta_yoy | pct }} year-over-year in
+        {{ city }}{% else %}demand is picking up in {{ locality }} this
+        weekend{% endif %} — want to ride that wave?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }},
+        {% if trend_query %}'{{ trend_query }}' ki searches
+        {{ trend_delta_yoy | pct }} badhi hain {{ city }} mein{% else %}is
+        weekend {{ locality }} mein demand badh rahi hai{% endif %} — iska
+        fayda uthayein?
+
+  - id: increase_sales_specificity
+    goal: INCREASE_SALES
+    levers: [specificity]
+    cta_type: binary
+    required_slots: []
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, this weekend is
+        typically a strong window for {{ category_slug }} in {{ locality }}.
+        Want me to draft a post to capture it?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, is weekend
+        {{ category_slug }} ke liye {{ locality }} mein achha window hota
+        hai. Ek post draft kar doon?

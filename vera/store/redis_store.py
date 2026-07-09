@@ -10,13 +10,15 @@ Key layout matches BaseContextStore conventions:
     sup:{suppression_key}      → "1"
     seen:{conv_id}:{body_hash} → "1"
 """
+
 from __future__ import annotations
 
-from typing import Any
-
-import redis.asyncio as aioredis
+from typing import TYPE_CHECKING, Any
 
 from vera.store.base_store import BaseContextStore
+
+if TYPE_CHECKING:
+    import redis.asyncio as aioredis
 
 
 class RedisContextStore(BaseContextStore):

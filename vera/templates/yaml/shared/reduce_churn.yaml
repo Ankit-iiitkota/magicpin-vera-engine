@@ -1,0 +1,45 @@
+templates:
+  - id: reduce_churn_reciprocity
+    goal: REDUCE_CHURN
+    levers: [reciprocity]
+    cta_type: none
+    required_slots: []
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, I know I've reached
+        out a few times without a reply — no pressure. I'll hold off on
+        nudges and just be here when you need something.
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, pata hai maine kai
+        baar message kiya bina reply ke — koi baat nahi. Ab main nudges rok
+        deti hoon, jab zaroorat ho tab bata dijiye.
+
+  - id: reduce_churn_asking_merchant
+    goal: REDUCE_CHURN
+    levers: [asking_merchant]
+    cta_type: open_ended
+    required_slots: []
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, quick one — what's
+        the one thing about your listing you'd want fixed first if I could
+        only do one this week?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, ek chhota sawaal —
+        agar is hafte sirf ek cheez theek karni ho aapki listing mein, toh
+        kaunsi?
+
+  - id: reduce_churn_curiosity
+    goal: REDUCE_CHURN
+    levers: [curiosity]
+    cta_type: open_ended
+    required_slots: [days_since_last_touch]
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, it's been
+        {{ days_since_last_touch }} days — a lot's changed on your profile
+        since we last spoke. Want a quick look?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }},
+        {{ days_since_last_touch }} din ho gaye baat kiye — aapki profile mein
+        kaafi kuch badla hai. Ek baar dekhna chahenge?

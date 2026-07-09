@@ -1,10 +1,91 @@
-"""Shared pytest fixtures and test doubles."""
+"""Shared pytest fixtures, test doubles, and context factories."""
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import Any
 
+from vera.contexts import CategoryContext, CustomerContext, MerchantContext, TriggerContext
+from vera.features import FeatureExtractor
 from vera.store.base_store import BaseContextStore
+
+#: A fixed "now" for every test that needs determinism — Sunday, so
+#: `temporal.weekend` is True by default unless a test overrides `now`.
+NOW = datetime(2026, 4, 26, 12, 0, tzinfo=UTC)
+
+
+# ── Minimal context factories — only the Pydantic-required fields, so
+#    tests can build "the smallest legal context" and override just what
+#    they care about. Shared across features/signals/goals/candidates/
+#    ranking/composer tests. ──────────────────────────────────────────────
+
+
+def make_category(**overrides: Any) -> CategoryContext:
+    data: dict[str, Any] = {"slug": "dentists", "voice": {"tone": "peer_clinical"}}
+    data.update(overrides)
+    return CategoryContext.model_validate(data)
+
+
+def make_merchant(**overrides: Any) -> MerchantContext:
+    data: dict[str, Any] = {
+        "merchant_id": "m_001",
+        "category_slug": "dentists",
+        "identity": {
+            "name": "Dr. Meera's Dental Clinic",
+            "verified": True,
+            "city": "Delhi",
+            "locality": "Lajpat Nagar",
+        },
+        "subscription": {"status": "active"},
+        "performance": {},
+    }
+    data.update(overrides)
+    return MerchantContext.model_validate(data)
+
+
+def make_trigger(**overrides: Any) -> TriggerContext:
+    data: dict[str, Any] = {
+        "id": "trg_001",
+        "scope": "merchant",
+        "kind": "research_digest",
+        "source": "external",
+        "suppression_key": "research:dentists:2026-W17",
+        "expires_at": "2026-05-03T00:00:00Z",
+    }
+    data.update(overrides)
+    return TriggerContext.model_validate(data)
+
+
+def make_customer(**overrides: Any) -> CustomerContext:
+    data: dict[str, Any] = {
+        "customer_id": "c_001",
+        "merchant_id": "m_001",
+        "identity": {"name": "Priya"},
+        "relationship": {},
+        "state": "active",
+        "preferences": {},
+        "consent": {},
+    }
+    data.update(overrides)
+    return CustomerContext.model_validate(data)
+
+
+def extract_features(
+    *,
+    category: CategoryContext | None = None,
+    merchant: MerchantContext | None = None,
+    trigger: TriggerContext | None = None,
+    customer: CustomerContext | None = None,
+    now: datetime = NOW,
+):
+    """Build a FeatureSet from factory defaults, overridable per-arg."""
+    return FeatureExtractor().extract(
+        category or make_category(),
+        merchant or make_merchant(),
+        trigger or make_trigger(),
+        customer=customer,
+        now=now,
+    )
 
 
 class AlwaysFailsStore(BaseContextStore):

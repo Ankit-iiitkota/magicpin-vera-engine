@@ -102,23 +102,17 @@ lever_bonuses:
   curiosity:          0.05
   single_binary_cta:  0.05
 
-# Goal → lever affinity (used by CandidateGenerator to pick compulsion foci)
+# Goal → lever affinity (used by CandidateGenerator to pick compulsion foci).
+# Keys are vera.goals.goal_context.CANONICAL_GOALS — the 8-goal taxonomy
+# GoalInferenceEngine (Phase 5) actually produces. Each goal lists its
+# levers strongest-fit-first; CandidateGenerator takes the top N to
+# produce that many differently-angled candidates for the same goal.
 goal_lever_affinity:
-  SHARE_CLINICAL_KNOWLEDGE:     [specificity, reciprocity, curiosity]
-  ENSURE_COMPLIANCE:            [specificity, loss_aversion]
-  RECOVER_LAPSED_CUSTOMERS:     [loss_aversion, reciprocity]
-  FULFILL_PLANNING_INTENT:      [reciprocity, specificity]
-  INCREASE_FOOTFALL:            [loss_aversion, social_proof, specificity]
-  RENEW_SUBSCRIPTION:           [loss_aversion, specificity]
-  REACTIVATE_ACCOUNT:           [curiosity, loss_aversion]
-  GROW_ONLINE_VISIBILITY:       [social_proof, specificity]
-  SEND_RECALL_REMINDER:         [specificity, reciprocity]
-  SEND_REFILL_REMINDER:         [specificity, loss_aversion]
-  WINBACK_LAPSED_CUSTOMER:      [reciprocity, curiosity]
-  IMPROVE_CUSTOMER_RETENTION:   [reciprocity, social_proof]
-  DRIVE_REPEAT_VISIT:           [reciprocity, loss_aversion]
-  ACQUIRE_NEW_CUSTOMERS:        [social_proof, specificity]
-  COMPLETE_GBP_PROFILE:         [loss_aversion, specificity]
-  SURFACE_TREND:                [curiosity, specificity]
-  LAUNCH_CAMPAIGN:              [loss_aversion, social_proof]
-  CONVERT_TRIAL_TO_PAID:        [reciprocity, loss_aversion]
+  RECOVER_REVENUE:      [loss_aversion, specificity, reciprocity]
+  WIN_BACK_CUSTOMERS:   [reciprocity, curiosity, loss_aversion]
+  REDUCE_CHURN:         [reciprocity, asking_merchant, curiosity]
+  PROMOTE_OFFERS:       [specificity, loss_aversion, social_proof]
+  IMPROVE_LISTINGS:     [loss_aversion, specificity, reciprocity]
+  COLLECT_REVIEWS:      [social_proof, reciprocity, asking_merchant]
+  INCREASE_SALES:       [loss_aversion, social_proof, specificity]
+  INCREASE_VISIBILITY:  [social_proof, specificity, curiosity]

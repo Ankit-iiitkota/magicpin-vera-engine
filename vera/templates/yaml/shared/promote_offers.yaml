@@ -1,0 +1,49 @@
+templates:
+  - id: promote_offers_specificity
+    goal: PROMOTE_OFFERS
+    levers: [specificity]
+    cta_type: binary
+    required_slots: [inventory_health]
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, you don't have a
+        live offer right now{% if suggested_offer_title %} —
+        {{ suggested_offer_title }} tends to convert well for
+        {{ category_slug }} in {{ locality }}{% endif %}. Want me to set it up?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, abhi koi live
+        offer nahi hai aapke paas{% if suggested_offer_title %} —
+        {{ suggested_offer_title }} {{ locality }} mein achha chalta
+        hai{% endif %}. Set up kar doon?
+
+  - id: promote_offers_loss_aversion
+    goal: PROMOTE_OFFERS
+    levers: [loss_aversion]
+    cta_type: binary
+    required_slots: [inventory_health]
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, with no active
+        offer, you're likely losing walk-ins to merchants who have one live.
+        Want me to activate {{ suggested_offer_title or 'a starter offer' }}
+        today?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, bina active offer
+        ke, walk-ins un merchants ke paas ja rahe honge jinke paas offer hai.
+        Aaj {{ suggested_offer_title or 'ek starter offer' }} activate kar
+        doon?
+
+  - id: promote_offers_social_proof
+    goal: PROMOTE_OFFERS
+    levers: [social_proof]
+    cta_type: binary
+    required_slots: [inventory_health]
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, most
+        {{ category_slug }} merchants in {{ locality }} run at least one live
+        offer — yours is empty right now. Want to fix that?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, {{ locality }} ke
+        zyada tar {{ category_slug }} merchants ke paas kam se kam ek live
+        offer hai — aapka khaali hai abhi. Theek kar doon?

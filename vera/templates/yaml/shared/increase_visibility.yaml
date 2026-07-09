@@ -1,0 +1,53 @@
+templates:
+  - id: increase_visibility_social_proof
+    goal: INCREASE_VISIBILITY
+    levers: [social_proof]
+    cta_type: binary
+    required_slots: []
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }},
+        {% if competitor_trigger %}a new competitor just opened nearby —
+        {% endif %}merchants who post weekly see meaningfully more views.
+        Want me to set up a posting cadence?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }},
+        {% if competitor_trigger %}paas mein ek naya competitor khula hai —
+        {% endif %}jo merchants weekly post karte hain unko zyada views
+        milte hain. Ek posting schedule set kar doon?
+
+  - id: increase_visibility_specificity
+    goal: INCREASE_VISIBILITY
+    levers: [specificity]
+    cta_type: open_ended
+    required_slots: []
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}{% if digest_title %},
+        this week's research: {{ digest_title }}{% if digest_source %}
+        ({{ digest_source }}){% endif %}{% else %}, your views moved
+        {{ views_delta_pct | pct(signed=true) }} this week{% endif %}. Want
+        the details?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}{% if digest_title %},
+        is hafte ki research: {{ digest_title }}{% if digest_source %}
+        ({{ digest_source }}){% endif %}{% else %}, aapke views
+        {{ views_delta_pct | pct(signed=true) }} badle hain is
+        hafte{% endif %}. Details chahiye?
+
+  - id: increase_visibility_curiosity
+    goal: INCREASE_VISIBILITY
+    levers: [curiosity]
+    cta_type: open_ended
+    required_slots: []
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }},
+        {% if competitor_trigger %}want to see what the new competitor
+        nearby is doing on GBP?{% else %}want to see how your profile
+        compares to nearby {{ category_slug }}?{% endif %}
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }},
+        {% if competitor_trigger %}dekhna chahenge naya competitor GBP pe
+        kya kar raha hai?{% else %}dekhna chahenge aapki profile paas ke
+        {{ category_slug }} se kaise compare karti hai?{% endif %}

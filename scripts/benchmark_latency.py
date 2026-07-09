@@ -1,4 +1,5 @@
 """Script: Measure /v1/tick latency under load. Phase 9."""
+
 from __future__ import annotations
 
 if __name__ == "__main__":

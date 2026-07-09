@@ -6,6 +6,7 @@ Uses pydantic-settings v2 BaseSettings for automatic env var binding.
 Call get_settings() to obtain the singleton instance.
 Call load_yaml(path) to load any YAML file as a plain dict.
 """
+
 from __future__ import annotations
 
 from functools import lru_cache
@@ -60,14 +61,10 @@ class Settings(BaseSettings):
 
     # ── Logging ───────────────────────────────────────────────────────────────
     log_level: str = Field("INFO", description="Logging level: DEBUG | INFO | WARNING | ERROR")
-    log_format: str = Field(
-        "json", description="Log output format: json | console"
-    )
+    log_format: str = Field("json", description="Log output format: json | console")
 
     # ── Weights file ──────────────────────────────────────────────────────────
-    weights_file: str = Field(
-        "config/weights.yaml", description="Path to scoring weights YAML"
-    )
+    weights_file: str = Field("config/weights.yaml", description="Path to scoring weights YAML")
 
     # ── Startup validation ────────────────────────────────────────────────────
     startup_validation_enabled: bool = Field(
