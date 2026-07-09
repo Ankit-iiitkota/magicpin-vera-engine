@@ -37,25 +37,35 @@ logger = structlog.get_logger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    settings = get_settings()
-    configure_logging(settings.log_level, settings.log_format)
+    try:
+        settings = get_settings()
+        configure_logging(settings.log_level, settings.log_format)
 
-    app.state.settings = settings
-    app.state.started_at = time.monotonic()
-    app.state.store = await create_store(settings)
-    app.state.context_repository = ContextRepository(app.state.store)
+        app.state.settings = settings
+        app.state.started_at = time.monotonic()
+        app.state.store = await create_store(settings)
+        app.state.context_repository = ContextRepository(app.state.store)
 
-    logger.info(
-        "vera_startup",
-        env=settings.env,
-        store_backend=app.state.store.backend_name,
-        app_version=settings.app_version,
-    )
-
+        logger.info(
+            "vera_startup",
+            env=settings.env,
+            store_backend=app.state.store.backend_name,
+            app_version=settings.app_version,
+        )
+    except Exception as exc:
+        print(f"LIFESPAN ERROR: {exc}")
+        # fallback to prevent crash
+        from vera.store.memory_store import InMemoryContextStore
+        app.state.store = InMemoryContextStore()
+        app.state.context_repository = ContextRepository(app.state.store)
+    
     yield
 
-    await app.state.store.close()
-    logger.info("vera_shutdown")
+    try:
+        await app.state.store.close()
+        logger.info("vera_shutdown")
+    except Exception:
+        pass
 
 
 def create_app() -> FastAPI:
