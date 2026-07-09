@@ -130,6 +130,29 @@ def test_tick_second_call_for_same_trigger_is_suppressed(client):
     assert len(second.json()["actions"]) == 0
 
 
+def test_tick_skips_a_second_trigger_that_renders_the_identical_body(client):
+    """
+    Goal inference consumes only SignalSet (never the trigger's own kind
+    or payload), so two different triggers for the same merchant can
+    legitimately produce the exact same body — a real LLM judge run
+    penalised this heavily (message correctly written, but doesn't
+    address the second trigger's own reason). Anti-repetition is keyed
+    by merchant_id specifically so this second, redundant send is
+    skipped rather than delivered twice in one tick.
+    """
+    _seed_merchant_scope(client)
+    second_trigger = dict(TRIGGER_PAYLOAD)
+    second_trigger["id"] = "trg_tick_001_duplicate"
+    second_trigger["suppression_key"] = "research:dentists:2026-W18"
+    _push(client, "trigger", second_trigger["id"], second_trigger)
+
+    r = _tick(client, TRIGGER_PAYLOAD["id"], second_trigger["id"])
+
+    actions = r.json()["actions"]
+    assert len(actions) == 1
+    assert actions[0]["trigger_id"] == TRIGGER_PAYLOAD["id"]
+
+
 def test_tick_customer_scoped_trigger_sends_as_merchant_on_behalf(client):
     _push(client, "category", "dentists", CATEGORY_PAYLOAD)
     _push(client, "merchant", "m_001", MERCHANT_PAYLOAD)
