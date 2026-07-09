@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from datetime import UTC, datetime
 from typing import Any
 
@@ -147,3 +148,73 @@ class AlwaysFailsStore(BaseContextStore):
     @property
     def backend_name(self) -> str:
         return "always_fails"
+
+
+class HangingStore(BaseContextStore):
+    """
+    Test double whose every operation awaits forever, simulating a
+    Redis that accepts a connection but stalls on a command (a blocked
+    write path, a half-open socket) rather than raising outright.
+
+    Used to prove ResilientContextStore's primary_timeout_seconds bound
+    actually kicks in — AlwaysFailsStore only exercises the "primary
+    raises quickly" path, not "primary never returns at all".
+    """
+
+    async def _hang(self) -> None:
+        await asyncio.Event().wait()
+
+    async def get(self, scope: str, context_id: str) -> dict[str, Any] | None:
+        await self._hang()
+        return None
+
+    async def set(
+        self,
+        scope: str,
+        context_id: str,
+        version: int,
+        payload: dict[str, Any],
+        ttl_seconds: int | None = None,
+    ) -> None:
+        await self._hang()
+
+    async def delete(self, scope: str, context_id: str) -> None:
+        await self._hang()
+
+    async def count_by_scope(self, scope: str) -> int:
+        await self._hang()
+        return 0
+
+    async def count_all(self) -> dict[str, int]:
+        await self._hang()
+        return {}
+
+    async def flush_all(self) -> None:
+        await self._hang()
+
+    async def check_suppression(self, suppression_key: str) -> bool:
+        await self._hang()
+        return False
+
+    async def set_suppression(self, suppression_key: str, ttl_seconds: int) -> None:
+        await self._hang()
+
+    async def check_seen(self, conversation_id: str, body_hash: str) -> bool:
+        await self._hang()
+        return False
+
+    async def set_seen(
+        self, conversation_id: str, body_hash: str, ttl_seconds: int = 172800
+    ) -> None:
+        await self._hang()
+
+    async def ping(self) -> bool:
+        await self._hang()
+        return False
+
+    async def close(self) -> None:
+        pass  # closing a hung store must never itself raise
+
+    @property
+    def backend_name(self) -> str:
+        return "hanging"

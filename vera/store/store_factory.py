@@ -53,7 +53,11 @@ async def create_store(settings: Settings) -> BaseContextStore:
             url=_mask_url(settings.redis_url),
         )
         if settings.redis_fallback_to_memory:
-            return ResilientContextStore(primary=store, fallback=InMemoryContextStore())
+            return ResilientContextStore(
+                primary=store,
+                fallback=InMemoryContextStore(),
+                primary_timeout_seconds=float(settings.redis_connect_timeout),
+            )
         return store
 
     except Exception as exc:

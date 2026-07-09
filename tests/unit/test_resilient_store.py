@@ -10,7 +10,9 @@ still-possibly-unhealthy primary on every call).
 
 from __future__ import annotations
 
-from tests.conftest import AlwaysFailsStore
+import time
+
+from tests.conftest import AlwaysFailsStore, HangingStore
 from vera.store.memory_store import InMemoryContextStore
 from vera.store.resilient_store import ResilientContextStore
 
@@ -78,3 +80,51 @@ async def test_close_never_raises_even_if_primary_close_fails() -> None:
     store = ResilientContextStore(primary=_FailsOnClose(), fallback=InMemoryContextStore())
 
     await store.close()  # must not raise
+
+
+# ── Timeout bound — a stalled primary must degrade, not hang the request ────
+#
+# This is the fix for a production-only 502: a managed Redis that accepts a
+# connection/PING but stalls on a specific command (a blocked write path)
+# doesn't raise — it just never returns. Without an explicit bound, that
+# hangs the request until the platform's edge proxy times out and returns a
+# 502, instead of the documented store failure surfacing as a clean 200
+# (degraded) or 500. AlwaysFailsStore can't exercise this; only a primary
+# that truly never completes can.
+
+
+async def test_hanging_primary_degrades_to_fallback_within_the_timeout() -> None:
+    store = ResilientContextStore(
+        primary=HangingStore(), fallback=InMemoryContextStore(), primary_timeout_seconds=0.05
+    )
+
+    started = time.monotonic()
+    await store.set("merchant", "m_001", 1, {"name": "x"})  # must not hang
+    elapsed = time.monotonic() - started
+
+    assert elapsed < 1.0
+    assert store.degraded is True
+    result = await store.get("merchant", "m_001")
+    assert result is not None
+    assert result["payload"] == {"name": "x"}
+
+
+async def test_hanging_primary_stays_degraded_for_subsequent_calls() -> None:
+    store = ResilientContextStore(
+        primary=HangingStore(), fallback=InMemoryContextStore(), primary_timeout_seconds=0.05
+    )
+
+    await store.set("merchant", "m_001", 1, {"name": "x"})  # triggers degrade via timeout
+    assert store.degraded is True
+
+    started = time.monotonic()
+    await store.set("merchant", "m_002", 1, {"name": "y"})
+    elapsed = time.monotonic() - started
+
+    assert elapsed < 0.5  # goes straight to fallback, no second timeout wait
+    assert await store.get("merchant", "m_002") is not None
+
+
+async def test_default_primary_timeout_is_five_seconds() -> None:
+    store = ResilientContextStore(primary=InMemoryContextStore(), fallback=InMemoryContextStore())
+    assert store._primary_timeout_seconds == 5.0

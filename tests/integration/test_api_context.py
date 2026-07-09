@@ -13,7 +13,7 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
-from tests.conftest import AlwaysFailsStore
+from tests.conftest import AlwaysFailsStore, HangingStore
 from vera.api.deps import get_context_repository, get_store
 from vera.config import get_settings
 from vera.main import app
@@ -90,6 +90,35 @@ def degraded_client(monkeypatch: pytest.MonkeyPatch):
     get_settings.cache_clear()
 
     store = ResilientContextStore(primary=AlwaysFailsStore(), fallback=InMemoryContextStore())
+    repo = ContextRepository(store)
+    app.dependency_overrides[get_store] = lambda: store
+    app.dependency_overrides[get_context_repository] = lambda: repo
+
+    with TestClient(app) as c:
+        yield c
+
+    app.dependency_overrides.pop(get_store, None)
+    app.dependency_overrides.pop(get_context_repository, None)
+    get_settings.cache_clear()
+
+
+@pytest.fixture
+def hanging_client(monkeypatch: pytest.MonkeyPatch):
+    """
+    A client whose store's primary never returns (accepts calls but
+    stalls forever) rather than raising — the production failure mode
+    behind a POST /v1/context 502: a managed Redis that accepts a
+    connection but hangs on a specific command doesn't error, it just
+    never responds, so an un-bounded primary call hangs the request
+    until the platform's edge proxy times out and returns 502 instead
+    of this documented, fast 200 (degraded).
+    """
+    monkeypatch.setenv("REDIS_URL", "redis://127.0.0.1:1/0")
+    get_settings.cache_clear()
+
+    store = ResilientContextStore(
+        primary=HangingStore(), fallback=InMemoryContextStore(), primary_timeout_seconds=0.05
+    )
     repo = ContextRepository(store)
     app.dependency_overrides[get_store] = lambda: store
     app.dependency_overrides[get_context_repository] = lambda: repo
@@ -339,3 +368,18 @@ def test_healthz_survives_primary_store_outage(degraded_client):
 
     assert r.status_code == 200
     assert r.json()["status"] == "ok"
+
+
+def test_context_push_survives_a_hanging_primary_instead_of_502ing(hanging_client):
+    """
+    Reproduces the production failure mode directly: a primary that
+    accepts the call but never returns must not hang the request — it
+    must degrade to the fallback and respond 200 within the bounded
+    primary_timeout_seconds, exactly like a quick-raising outage does.
+    """
+    r = _push(hanging_client, "merchant", "m_001", 1, MERCHANT_PAYLOAD)
+
+    assert r.status_code == 200
+    body = r.json()
+    assert body["accepted"] is True
+    assert body["ack_id"] == "ack_m_001_v1"
