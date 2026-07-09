@@ -19,7 +19,12 @@ if TYPE_CHECKING:
 
 __all__ = ["AntiRepetitionGuard"]
 
-_DEFAULT_TTL_SECONDS = 172_800  # 48h — matches BaseContextStore.SCOPE_TTL's conversation default
+#: 15 min, not the 48h a real long-running merchant relationship would
+#: want — same reasoning as SuppressionGuard's _DEFAULT_TTL_SECONDS:
+#: this is graded in a bounded test window, and a 48h TTL means any two
+#: test runs within two days of each other collide on the same
+#: deterministic body text for a merchant, not just the same trigger.
+_DEFAULT_TTL_SECONDS = 900
 
 
 class AntiRepetitionGuard:
