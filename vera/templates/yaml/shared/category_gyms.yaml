@@ -132,18 +132,28 @@ templates:
     body:
       en: >-
         Hi {{ salutation(owner_first_name, category_slug) }},
-        {% if festival_days_until %}festival-season sign-ups pick up in the
-        next {{ festival_days_until }} days{% else %}your weekend trial
-        walk-ins typically run highest for {{ category_slug }} in
-        {{ locality }}{% endif %} — gyms without a fresh post tend to miss
-        the window. Want me to schedule one?
+        {% if trend_query %}'{{ trend_query }}' searches are up
+        {{ trend_delta_yoy | pct }} in {{ city }}{% elif season_note %}
+        {{ season_note }}{% elif festival_days_until %}festival-season
+        sign-ups pick up in the next {{ festival_days_until }} days{% elif views_delta_pct and views_delta_pct > 0 %}
+        your profile views are already up
+        {{ views_delta_pct | pct(signed=true) }} this month{% else %}your
+        weekend trial walk-ins typically run highest for {{ category_slug }}
+        in {{ locality }}{% endif %} — gyms without a fresh post tend to
+        miss the window. Reply YES and I'll schedule one today.
       hi_en: >-
         Hi {{ salutation(owner_first_name, category_slug) }},
-        {% if festival_days_until %}agle {{ festival_days_until }} din mein
-        festival-season sign-ups badhte hain{% else %}weekend trial
-        walk-ins {{ category_slug }} ke liye {{ locality }} mein sabse
-        zyada hote hain{% endif %} — bina fresh post ke gyms yeh window
-        miss kar dete hain. Ek post schedule kar doon?
+        {% if trend_query %}'{{ trend_query }}' ki searches
+        {{ trend_delta_yoy | pct }} badhi hain {{ city }} mein{% elif season_note %}
+        {{ season_note }}{% elif festival_days_until %}agle
+        {{ festival_days_until }} din mein festival-season sign-ups
+        badhte hain{% elif views_delta_pct and views_delta_pct > 0 %}
+        aapke profile views is mahine
+        {{ views_delta_pct | pct(signed=true) }} badh chuke hain{% else %}
+        weekend trial walk-ins {{ category_slug }} ke liye {{ locality }}
+        mein sabse zyada hote hain{% endif %} — bina fresh post ke gyms yeh
+        window miss kar dete hain. YES bolein, aaj hi post schedule kar deti
+        hoon.
 
   - id: gyms_increase_visibility_specificity
     goal: INCREASE_VISIBILITY
@@ -153,13 +163,16 @@ templates:
     required_slots: []
     body:
       en: >-
-        Hi {{ salutation(owner_first_name, category_slug) }}{% if digest_title %},
+        Hi {{ salutation(owner_first_name, category_slug) }}{% if competitor_trigger %},
+        a new gym just opened near {{ locality }}{% elif digest_title %},
         this week's trend: {{ digest_title }}{% if digest_source %}
         ({{ digest_source }}){% endif %}{% else %}, your profile views
         moved {{ views_delta_pct | pct(signed=true) }} this
-        week{% endif %} — want the details?
+        week{% endif %} — want the details{% if competitor_trigger %} on
+        how your listing compares{% endif %}?
       hi_en: >-
-        Hi {{ salutation(owner_first_name, category_slug) }}{% if digest_title %},
+        Hi {{ salutation(owner_first_name, category_slug) }}{% if competitor_trigger %},
+        {{ locality }} ke paas ek naya gym khula hai{% elif digest_title %},
         is hafte ka trend: {{ digest_title }}{% if digest_source %}
         ({{ digest_source }}){% endif %}{% else %}, is hafte views
         {{ views_delta_pct | pct(signed=true) }} badle hain{% endif %} —

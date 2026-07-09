@@ -56,9 +56,10 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         print(f"LIFESPAN ERROR: {exc}")
         # fallback to prevent crash
         from vera.store.memory_store import InMemoryContextStore
+
         app.state.store = InMemoryContextStore()
         app.state.context_repository = ContextRepository(app.state.store)
-    
+
     yield
 
     try:
@@ -85,15 +86,16 @@ try:
     app = create_app()
 except Exception as exc:
     import traceback
+
     err_str = "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))
     print(f"CRITICAL STARTUP ERROR:\n{err_str}")
-    
+
     app = FastAPI()
-    
+
     @app.get("/v1/healthz")
     def dummy_healthz():
         return {"status": "error", "message": err_str}
-        
+
     @app.post("/v1/context")
     def dummy_context():
         return {"status": "error", "message": err_str}

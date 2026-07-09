@@ -136,18 +136,28 @@ templates:
     body:
       en: >-
         {{ salutation(owner_first_name, category_slug) }},
-        {% if festival_days_until %}exam-season and wedding-whitening bookings
-        pick up in the next {{ festival_days_until }} days{% else %}your
+        {% if trend_query %}'{{ trend_query }}' searches are up
+        {{ trend_delta_yoy | pct }} in {{ city }}{% elif season_note %}
+        {{ season_note }}{% elif festival_days_until %}exam-season and
+        wedding-whitening bookings pick up in the next
+        {{ festival_days_until }} days{% elif views_delta_pct and views_delta_pct > 0 %}
+        your profile views are already up
+        {{ views_delta_pct | pct(signed=true) }} this month{% else %}your
         weekend slots typically fill faster for {{ category_slug }} in
         {{ locality }}{% endif %} — clinics without a fresh post tend to miss
-        the window. Want me to schedule one?
+        the window. Reply YES and I'll schedule one today.
       hi_en: >-
         {{ salutation(owner_first_name, category_slug) }},
-        {% if festival_days_until %}agle {{ festival_days_until }} din mein
-        exam-season aur wedding-whitening bookings badhti hain{% else %}
+        {% if trend_query %}'{{ trend_query }}' ki searches
+        {{ trend_delta_yoy | pct }} badhi hain {{ city }} mein{% elif season_note %}
+        {{ season_note }}{% elif festival_days_until %}agle
+        {{ festival_days_until }} din mein exam-season aur wedding-whitening
+        bookings badhti hain{% elif views_delta_pct and views_delta_pct > 0 %}
+        aapke profile views is mahine
+        {{ views_delta_pct | pct(signed=true) }} badh chuke hain{% else %}
         weekend slots {{ category_slug }} ke liye {{ locality }} mein jaldi
         bhar jaate hain{% endif %} — bina fresh post ke clinics yeh window
-        miss kar dete hain. Ek post schedule kar doon?
+        miss kar dete hain. YES bolein, aaj hi post schedule kar deti hoon.
 
   - id: dentists_increase_visibility_specificity
     goal: INCREASE_VISIBILITY
@@ -157,14 +167,21 @@ templates:
     required_slots: []
     body:
       en: >-
-        {{ salutation(owner_first_name, category_slug) }}{% if digest_title %},
-        this week's clinical read: {{ digest_title }}{% if digest_source %}
+        {{ salutation(owner_first_name, category_slug) }}{% if competitor_trigger %},
+        a new {{ category_slug }} practice just opened near
+        {{ locality }}{% elif digest_title %}, this week's clinical read:
+        {{ digest_title }}{% if digest_source %}
         ({{ digest_source }}){% endif %}{% else %}, your profile views moved
         {{ views_delta_pct | pct(signed=true) }} this week{% endif %} — want
-        the details so you can flag it for your high-risk patients?
+        the details{% if competitor_trigger %} on how your listing compares
+        {% else %} so you can flag it for your high-risk patients{% endif %}?
       hi_en: >-
-        {{ salutation(owner_first_name, category_slug) }}{% if digest_title %},
-        is hafte ka clinical update: {{ digest_title }}{% if digest_source %}
+        {{ salutation(owner_first_name, category_slug) }}{% if competitor_trigger %},
+        {{ locality }} ke paas ek nayi {{ category_slug }} practice khuli
+        hai{% elif digest_title %}, is hafte ka clinical update:
+        {{ digest_title }}{% if digest_source %}
         ({{ digest_source }}){% endif %}{% else %}, is hafte views
         {{ views_delta_pct | pct(signed=true) }} badle hain{% endif %} —
-        details chahiye high-risk patients ke liye flag karne ko?
+        details chahiye{% if competitor_trigger %} yeh dekhne ke liye ki
+        aapki listing kaisi compare karti hai{% else %} high-risk patients
+        ke liye flag karne ko{% endif %}?

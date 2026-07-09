@@ -36,6 +36,7 @@ import argparse
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.request
 from datetime import UTC, datetime
@@ -54,29 +55,57 @@ _CATEGORY_FILES = (
     "pharmacies.json",
 )
 
+#: Free-tier hosts (Render, Railway, ...) can drop or 502/504 a request
+#: transiently under a rapid back-to-back sequence like this script's 55
+#: pushes, or return an HTML edge-error page instead of JSON. A couple of
+#: short retries smooths that over without masking a genuine, repeated
+#: failure (schema mismatch, wrong URL, ...), which still fails loudly
+#: after the retries are exhausted.
+_MAX_ATTEMPTS = 3
+_RETRY_BACKOFF_SECONDS = 2.0
+
 
 def _now_iso() -> str:
     return datetime.now(UTC).isoformat()
 
 
-def _post(base_url: str, path: str, body: dict[str, Any]) -> tuple[int, Any]:
-    req = urllib.request.Request(
-        f"{base_url}{path}",
-        data=json.dumps(body).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
+def _decode_json(raw: bytes) -> Any:
+    """Best-effort JSON decode — returns the raw text if the body isn't JSON
+    (e.g. a platform edge-proxy HTML error page) instead of raising."""
+    text = raw.decode("utf-8", errors="replace")
     try:
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            return resp.status, json.loads(resp.read().decode("utf-8"))
-    except urllib.error.HTTPError as exc:
-        return exc.code, json.loads(exc.read().decode("utf-8"))
+        return json.loads(text)
+    except json.JSONDecodeError:
+        return {"non_json_response": text[:500]}
+
+
+def _request(base_url: str, path: str, method: str, body: dict[str, Any] | None) -> tuple[int, Any]:
+    data = json.dumps(body).encode("utf-8") if body is not None else None
+    headers = {"Content-Type": "application/json"} if body is not None else {}
+    req = urllib.request.Request(f"{base_url}{path}", data=data, headers=headers, method=method)
+
+    last_status, last_data = 0, {"error": "never attempted"}
+    for attempt in range(1, _MAX_ATTEMPTS + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                return resp.status, _decode_json(resp.read())
+        except urllib.error.HTTPError as exc:
+            last_status, last_data = exc.code, _decode_json(exc.read())
+        except urllib.error.URLError as exc:
+            last_status, last_data = 0, {"error": str(exc.reason)}
+
+        if attempt < _MAX_ATTEMPTS:
+            time.sleep(_RETRY_BACKOFF_SECONDS)
+
+    return last_status, last_data
+
+
+def _post(base_url: str, path: str, body: dict[str, Any]) -> tuple[int, Any]:
+    return _request(base_url, path, "POST", body)
 
 
 def _get(base_url: str, path: str) -> tuple[int, Any]:
-    req = urllib.request.Request(f"{base_url}{path}", method="GET")
-    with urllib.request.urlopen(req, timeout=15) as resp:
-        return resp.status, json.loads(resp.read().decode("utf-8"))
+    return _request(base_url, path, "GET", None)
 
 
 def _push_context(base_url: str, scope: str, context_id: str, payload: dict[str, Any]) -> bool:
@@ -91,7 +120,7 @@ def _push_context(base_url: str, scope: str, context_id: str, payload: dict[str,
             "delivered_at": _now_iso(),
         },
     )
-    ok = status == 200 and data.get("accepted") is True
+    ok = status == 200 and isinstance(data, dict) and data.get("accepted") is True
     marker = "OK" if ok else "FAIL"
     print(f"  [{marker}] {scope}/{context_id} -> {status} {data}")
     return ok

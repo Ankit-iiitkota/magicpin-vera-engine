@@ -55,7 +55,9 @@ async def push_context(
     body: ContextPushRequest,
     repo: ContextRepository = Depends(get_context_repository),
 ) -> JSONResponse:
-    logger.info("context_push_step", step="request received", scope=body.scope, context_id=body.context_id)
+    logger.info(
+        "context_push_step", step="request received", scope=body.scope, context_id=body.context_id
+    )
     try:
         model_cls = _SCOPE_MODELS.get(body.scope)
         if model_cls is None:
@@ -65,7 +67,9 @@ async def push_context(
                 reason="invalid_scope",
                 details=f"scope must be one of {sorted(_SCOPE_MODELS)}, got {body.scope!r}",
             )
-        logger.info("context_push_step", step="request parsed", scope=body.scope, context_id=body.context_id)
+        logger.info(
+            "context_push_step", step="request parsed", scope=body.scope, context_id=body.context_id
+        )
 
         try:
             parse_iso8601(body.delivered_at)
@@ -83,10 +87,25 @@ async def push_context(
                 context_id=body.context_id,
             )
             return _rejected(400, reason="invalid_payload", details=str(exc))
-        
-        logger.info("context_push_step", step="validation passed", scope=body.scope, context_id=body.context_id)
-        logger.info("context_push_step", step="repository entered", scope=body.scope, context_id=body.context_id)
-        logger.info("context_push_step", step="before save_context()", scope=body.scope, context_id=body.context_id)
+
+        logger.info(
+            "context_push_step",
+            step="validation passed",
+            scope=body.scope,
+            context_id=body.context_id,
+        )
+        logger.info(
+            "context_push_step",
+            step="repository entered",
+            scope=body.scope,
+            context_id=body.context_id,
+        )
+        logger.info(
+            "context_push_step",
+            step="before save_context()",
+            scope=body.scope,
+            context_id=body.context_id,
+        )
 
         result = await repo.save_context(
             scope=body.scope,
@@ -96,7 +115,12 @@ async def push_context(
             delivered_at=body.delivered_at,
         )
 
-        logger.info("context_push_step", step="after save_context()", scope=body.scope, context_id=body.context_id)
+        logger.info(
+            "context_push_step",
+            step="after save_context()",
+            scope=body.scope,
+            context_id=body.context_id,
+        )
 
         if result.status is SaveStatus.STALE:
             logger.info(
@@ -116,15 +140,31 @@ async def push_context(
             version=result.version,
             status=result.status.value,
         )
-        logger.info("context_push_step", step="response created", scope=body.scope, context_id=body.context_id)
-        
+        logger.info(
+            "context_push_step",
+            step="response created",
+            scope=body.scope,
+            context_id=body.context_id,
+        )
+
         accepted = ContextPushAccepted(
             ack_id=f"ack_{body.context_id}_v{result.version}",
             stored_at=result.stored_at,
         )
         response = JSONResponse(status_code=200, content=accepted.model_dump())
-        logger.info("context_push_step", step="response returned", scope=body.scope, context_id=body.context_id)
+        logger.info(
+            "context_push_step",
+            step="response returned",
+            scope=body.scope,
+            context_id=body.context_id,
+        )
         return response
     except Exception as exc:
-        logger.error("context_push_exception", exc_info=True, error=str(exc), scope=body.scope, context_id=body.context_id)
+        logger.error(
+            "context_push_exception",
+            exc_info=True,
+            error=str(exc),
+            scope=body.scope,
+            context_id=body.context_id,
+        )
         raise

@@ -54,7 +54,7 @@ class Settings(BaseSettings):
     redis_user: str = Field("default", alias="redisuser", description="Redis user")
     redis_password: str = Field("", alias="redispassword", description="Redis password")
     redis_private_url: str = Field("", description="Railway private URL")
-    
+
     @property
     def computed_redis_url(self) -> str:
         if self.redis_private_url:

@@ -234,6 +234,11 @@ def _slots_increase_sales(f: FeatureSet, ss: SignalSet) -> dict[str, Any]:
         {
             "weekend": f.temporal.weekend,
             "season": f.temporal.season,
+            # First matched seasonal_beats note for `now`'s month (already
+            # category-specific, real data) — a stronger fallback fact than
+            # the generic "weekend slots fill fast" line when no trend or
+            # festival signal fired.
+            "season_note": f.temporal.season[0] if f.temporal.season else None,
             "trigger_kind": f.trigger.kind,
             "trend_query": demand_signal.evidence.get("query") if demand_signal else None,
             "trend_delta_yoy": demand_signal.evidence.get("delta_yoy") if demand_signal else None,
@@ -242,6 +247,10 @@ def _slots_increase_sales(f: FeatureSet, ss: SignalSet) -> dict[str, Any]:
                 if festival_signal
                 else None
             ),
+            # Last-resort real fact before falling back to purely generic
+            # copy: a positive views trend is still a concrete, verifiable
+            # number, unlike "your weekend slots typically fill fastest".
+            "views_delta_pct": f.performance.views_delta_pct,
         }
     )
     return slots

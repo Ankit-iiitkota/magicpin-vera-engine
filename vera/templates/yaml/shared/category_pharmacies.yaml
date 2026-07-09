@@ -134,18 +134,29 @@ templates:
     body:
       en: >-
         Hi {{ salutation(owner_first_name, category_slug) }},
-        {% if festival_days_until %}seasonal demand shifts in the next
-        {{ festival_days_until }} days{% else %}your weekend counter
-        footfall typically runs highest for {{ category_slug }} in
-        {{ locality }}{% endif %} — pharmacies without a fresh post tend to
-        miss the window. Want me to schedule one?
+        {% if trend_query %}'{{ trend_query }}' searches are up
+        {{ trend_delta_yoy | pct }} in {{ city }}{% elif season_note %}
+        {{ season_note }}{% elif festival_days_until %}seasonal demand
+        shifts in the next {{ festival_days_until }} days{% elif views_delta_pct and views_delta_pct > 0 %}
+        your profile views are already up
+        {{ views_delta_pct | pct(signed=true) }} this month{% else %}your
+        weekend counter footfall typically runs highest for
+        {{ category_slug }} in {{ locality }}{% endif %} — pharmacies
+        without a fresh post tend to miss the window. Reply YES and I'll
+        schedule one today.
       hi_en: >-
         Hi {{ salutation(owner_first_name, category_slug) }},
-        {% if festival_days_until %}agle {{ festival_days_until }} din mein
-        seasonal demand shift hoti hai{% else %}weekend counter footfall
-        {{ category_slug }} ke liye {{ locality }} mein sabse zyada hota
-        hai{% endif %} — bina fresh post ke pharmacies yeh window miss kar
-        dete hain. Ek post schedule kar doon?
+        {% if trend_query %}'{{ trend_query }}' ki searches
+        {{ trend_delta_yoy | pct }} badhi hain {{ city }} mein{% elif season_note %}
+        {{ season_note }}{% elif festival_days_until %}agle
+        {{ festival_days_until }} din mein seasonal demand shift
+        hoti hai{% elif views_delta_pct and views_delta_pct > 0 %}
+        aapke profile views is mahine
+        {{ views_delta_pct | pct(signed=true) }} badh chuke hain{% else %}
+        weekend counter footfall {{ category_slug }} ke liye {{ locality }}
+        mein sabse zyada hota hai{% endif %} — bina fresh post ke
+        pharmacies yeh window miss kar dete hain. YES bolein, aaj hi post
+        schedule kar deti hoon.
 
   - id: pharmacies_increase_visibility_specificity
     goal: INCREASE_VISIBILITY
@@ -155,13 +166,16 @@ templates:
     required_slots: []
     body:
       en: >-
-        Hi {{ salutation(owner_first_name, category_slug) }}{% if digest_title %},
+        Hi {{ salutation(owner_first_name, category_slug) }}{% if competitor_trigger %},
+        a new pharmacy just opened near {{ locality }}{% elif digest_title %},
         this week's update: {{ digest_title }}{% if digest_source %}
         ({{ digest_source }}){% endif %}{% else %}, your profile views
         moved {{ views_delta_pct | pct(signed=true) }} this
-        week{% endif %} — want the details?
+        week{% endif %} — want the details{% if competitor_trigger %} on
+        how your listing compares{% endif %}?
       hi_en: >-
-        Hi {{ salutation(owner_first_name, category_slug) }}{% if digest_title %},
+        Hi {{ salutation(owner_first_name, category_slug) }}{% if competitor_trigger %},
+        {{ locality }} ke paas ek nayi pharmacy khuli hai{% elif digest_title %},
         is hafte ka update: {{ digest_title }}{% if digest_source %}
         ({{ digest_source }}){% endif %}{% else %}, is hafte views
         {{ views_delta_pct | pct(signed=true) }} badle hain{% endif %} —
