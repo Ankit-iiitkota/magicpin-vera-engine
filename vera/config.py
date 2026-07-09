@@ -49,6 +49,25 @@ class Settings(BaseSettings):
 
     # ── Redis ─────────────────────────────────────────────────────────────────
     redis_url: str = Field("redis://localhost:6379/0", description="Redis connection URL")
+    redis_host: str = Field("", description="Redis host (Railway fallback)")
+    redis_port: str = Field("", description="Redis port (Railway fallback)")
+    redis_user: str = Field("default", alias="redisuser", description="Redis user")
+    redis_password: str = Field("", alias="redispassword", description="Redis password")
+    redis_private_url: str = Field("", description="Railway private URL")
+    
+    @property
+    def computed_redis_url(self) -> str:
+        if self.redis_private_url:
+            return self.redis_private_url
+        if self.redis_url and "localhost" not in self.redis_url:
+            return self.redis_url
+        if self.redis_host and self.redis_port:
+            auth = ""
+            if self.redis_password:
+                auth = f"{self.redis_user}:{self.redis_password}@"
+            return f"redis://{auth}{self.redis_host}:{self.redis_port}/0"
+        return self.redis_url
+
     redis_fallback_to_memory: bool = Field(
         True, description="Fall back to in-memory store if Redis is unreachable"
     )

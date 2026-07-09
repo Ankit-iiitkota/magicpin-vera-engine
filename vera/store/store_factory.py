@@ -50,7 +50,7 @@ async def create_store(settings: Settings) -> BaseContextStore:
         logger.info(
             "store_connected",
             backend="redis",
-            url=_mask_url(settings.redis_url),
+            url=_mask_url(settings.computed_redis_url),
         )
         if settings.redis_fallback_to_memory:
             return ResilientContextStore(
@@ -80,7 +80,7 @@ async def _connect_redis(settings: Settings) -> RedisContextStore:
     import redis.asyncio as aioredis
 
     client = aioredis.from_url(
-        settings.redis_url,
+        settings.computed_redis_url,
         socket_connect_timeout=settings.redis_connect_timeout,
         socket_timeout=settings.redis_connect_timeout,
         decode_responses=False,  # We handle decoding ourselves
