@@ -81,4 +81,19 @@ def create_app() -> FastAPI:
     return app
 
 
-app = create_app()
+try:
+    app = create_app()
+except Exception as exc:
+    import traceback
+    err_str = "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))
+    print(f"CRITICAL STARTUP ERROR:\n{err_str}")
+    
+    app = FastAPI()
+    
+    @app.get("/v1/healthz")
+    def dummy_healthz():
+        return {"status": "error", "message": err_str}
+        
+    @app.post("/v1/context")
+    def dummy_context():
+        return {"status": "error", "message": err_str}
