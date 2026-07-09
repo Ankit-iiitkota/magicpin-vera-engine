@@ -27,11 +27,9 @@ ENV PATH=/root/.local/bin:$PATH
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-EXPOSE 8080
+EXPOSE ${PORT:-8080}
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/v1/healthz')"
+    CMD python -c "import os,urllib.request; urllib.request.urlopen(f'http://localhost:{os.environ.get(\"PORT\",\"8080\")}/v1/healthz')"
 
-CMD ["python", "-m", "uvicorn", "vera.main:app", \
-     "--host", "0.0.0.0", "--port", "8080", \
-     "--workers", "1", "--log-config", "/dev/null"]
+CMD ["sh", "-c", "python -m uvicorn vera.main:app --host 0.0.0.0 --port ${PORT:-8080} --workers 1"]
