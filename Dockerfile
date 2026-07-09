@@ -30,6 +30,6 @@ ENV PYTHONUNBUFFERED=1
 EXPOSE ${PORT:-8080}
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD python -c "import os,urllib.request; urllib.request.urlopen(f'http://localhost:{os.environ.get(\"PORT\",\"8080\")}/v1/healthz')"
+    CMD python -c "import os,urllib.request; urllib.request.urlopen(f'http://127.0.0.1:{os.environ.get(\"PORT\",\"8080\")}/v1/healthz')"
 
 CMD ["sh", "-c", "python -m uvicorn vera.main:app --host 0.0.0.0 --port ${PORT:-8080} --workers 1"]
