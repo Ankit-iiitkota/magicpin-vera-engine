@@ -3,6 +3,6 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "python -m uvicorn vera.main:app --host 0.0.0.0 --port $PORT --workers 1"
+startCommand = "python run.py"
 healthcheckPath = "/v1/healthz"
 healthcheckTimeout = 30

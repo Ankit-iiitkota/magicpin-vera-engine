@@ -25,10 +25,11 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY vera/ ./vera/
 COPY config/ ./config/
 COPY optimize.py .
+COPY run.py .
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 EXPOSE ${PORT:-8080}
 
-CMD ["sh", "-c", "python -m uvicorn vera.main:app --host 0.0.0.0 --port ${PORT:-8080} --workers 1"]
+CMD ["python", "run.py"]
