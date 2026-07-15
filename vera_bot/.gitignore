@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+*.log
+test_log.txt
+
+judge_results.txt
+test_log.txt
+*.txt
