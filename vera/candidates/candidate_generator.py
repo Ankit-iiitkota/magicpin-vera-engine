@@ -187,11 +187,19 @@ def _slots_win_back_customers(f: FeatureSet, ss: SignalSet) -> dict[str, Any]:
 
 def _slots_reduce_churn(f: FeatureSet, ss: SignalSet) -> dict[str, Any]:
     slots = _base_slots(f)
+    calls_delta = f.performance.calls_delta_pct
+    views_delta = f.performance.views_delta_pct
+    if calls_delta is not None and (views_delta is None or calls_delta <= views_delta):
+        metric_label, metric_delta = "calls", calls_delta
+    else:
+        metric_label, metric_delta = "views", views_delta
     slots.update(
         {
             "campaign_fatigue": f.campaign_history.campaign_fatigue,
             "days_since_last_touch": f.conversation.days_since_last_touch,
             "conversation_recency": f.conversation.conversation_recency,
+            "metric_label": metric_label,
+            "metric_delta_pct": metric_delta,
         }
     )
     return slots

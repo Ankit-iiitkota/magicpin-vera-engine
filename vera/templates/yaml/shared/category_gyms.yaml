@@ -63,18 +63,23 @@ templates:
     required_slots: []
     body:
       en: >-
-        Hi {{ salutation(owner_first_name, category_slug) }}{% if days_since_last_touch %},
+        Hi {{ salutation(owner_first_name, category_slug) }}{% if campaign_fatigue and campaign_fatigue > 1 %},
+        my last {{ campaign_fatigue }} nudges went unanswered{% elif days_since_last_touch %},
         it's been {{ days_since_last_touch }} days since we last
-        spoke{% endif %} and I don't want to keep pinging without being
-        useful — I'll tailor what I send around whatever's actually
-        relevant to you right now. Quick one: is your member mix leaning
-        more group classes or 1:1 PT sessions this month?
+        spoke{% endif %}{% if metric_delta_pct %} and your
+        {{ metric_label }} are down {{ metric_delta_pct | abs_pct }} in that
+        window{% endif %} — so instead of another generic ping, tell me one
+        thing: is your member mix leaning more group classes or 1:1 PT
+        sessions this month? I'll target every message after this to that.
       hi_en: >-
-        Hi {{ salutation(owner_first_name, category_slug) }}{% if days_since_last_touch %},
-        {{ days_since_last_touch }} din ho gaye baat kiye{% endif %}, aur
-        bina kaam ki cheez ke ping nahi karna chahti — jo aapke liye
-        abhi relevant hai, wahi bhejungi. Ek chhota sawaal: is mahine
-        members zyada group classes le rahe hain ya 1:1 PT sessions?
+        Hi {{ salutation(owner_first_name, category_slug) }}{% if campaign_fatigue and campaign_fatigue > 1 %},
+        mere pichhle {{ campaign_fatigue }} messages ka jawab nahi
+        aaya{% elif days_since_last_touch %},
+        {{ days_since_last_touch }} din ho gaye baat kiye{% endif %}{% if metric_delta_pct %}
+        aur is dauraan {{ metric_label }} {{ metric_delta_pct | abs_pct }} gir
+        gaye hain{% endif %} — ek generic ping bhejne ke bajaye ek cheez
+        batayein: is mahine members zyada group classes le rahe hain ya 1:1
+        PT sessions? Iske baad har message isi pe target karungi.
 
   - id: gyms_promote_offers_specificity
     goal: PROMOTE_OFFERS

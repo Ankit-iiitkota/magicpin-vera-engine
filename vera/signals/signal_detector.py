@@ -44,6 +44,7 @@ _DEFAULT_SEVERITY = 3
 
 _WEATHER_TRIGGER_PREFIX = "weather"
 _COMPETITION_TRIGGER_KIND = "competitor_opened"
+_PROACTIVE_RECALL_TRIGGER_KINDS = frozenset({"recall_due", "chronic_refill_due"})
 
 
 class SignalDetector:
@@ -155,7 +156,20 @@ class SignalDetector:
 
     def _detect_customer_recall(self, f: FeatureSet) -> dict[str, Any] | None:
         cr = f.customer_relationship
-        if not cr.has_customer_context or cr.customer_state not in ("lapsed_soft", "lapsed_hard"):
+        if not cr.has_customer_context:
+            return None
+        # Lapsed customers always qualify. An active customer also
+        # qualifies when the trigger firing right now is itself a
+        # proactive per-customer reminder (a refill/recall due date,
+        # not a lapse) — otherwise a real, customer-specific trigger
+        # like chronic_refill_due has no signal path at all and silently
+        # loses goal inference to whatever generic merchant-level signal
+        # happens to also be present (see candidate_generator's
+        # docstring on trigger.payload never being invented, and
+        # tick.py's AntiRepetitionGuard comment on two triggers for the
+        # same merchant legitimately composing identical bodies).
+        is_proactive_reminder = f.trigger.kind in _PROACTIVE_RECALL_TRIGGER_KINDS
+        if cr.customer_state not in ("lapsed_soft", "lapsed_hard") and not is_proactive_reminder:
             return None
         return {
             "customer_id": cr.customer_id,

@@ -107,13 +107,23 @@ def test_campaign_fatigue_fires_at_threshold() -> None:
     assert not not_fired.has("CampaignFatigue")
 
 
-def test_customer_recall_fires_for_lapsed_customer_only() -> None:
+def test_customer_recall_fires_for_lapsed_customer_or_proactive_reminder() -> None:
     lapsed = make_customer(state="lapsed_soft")
     active = make_customer(state="active")
 
     assert detect(customer=lapsed).has("CustomerRecall")
     assert not detect(customer=active).has("CustomerRecall")
     assert not detect(customer=None).has("CustomerRecall")
+
+    # An active customer still qualifies when the trigger firing right
+    # now is itself a proactive per-customer reminder (refill/recall due
+    # date, not a lapse) — otherwise triggers like chronic_refill_due
+    # have no signal path and lose goal inference to whatever generic
+    # merchant-level signal happens to also be present.
+    refill_due = make_trigger(kind="chronic_refill_due")
+    recall_due = make_trigger(kind="recall_due")
+    assert detect(customer=active, trigger=refill_due).has("CustomerRecall")
+    assert detect(customer=active, trigger=recall_due).has("CustomerRecall")
 
 
 def test_dormant_merchant_fires_after_threshold_days() -> None:
