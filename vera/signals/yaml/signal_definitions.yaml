@@ -1,0 +1,101 @@
+# Signal definitions — metadata for every signal SignalDetector can raise.
+#
+# Detection LOGIC (the actual condition against FeatureSet) lives in
+# Python, in vera/signals/signal_detector.py — each signal's condition
+# is a plain boolean function over typed FeatureSet fields, which is
+# clearer, more testable, and easier to keep deterministic than a
+# generic YAML rule-condition DSL would be for conditions this varied
+# (date arithmetic, threshold comparisons, tuple scans).
+#
+# What DOES belong here, and IS consumed by SignalDetector:
+#   - severity (1-5): used for SignalSet ordering and composite priority
+#   - description: human-readable, feeds rationale/decision-trace text
+#   - composite rules: declarative AND/OR combinations of primitive
+#     signal kinds — these genuinely are just membership tests over an
+#     already-computed SignalSet, so a plain YAML list is the right
+#     amount of machinery (no interpreter needed).
+
+signals:
+  RevenueDrop:
+    severity: 5
+    description: >
+      Calls or views dropped sharply week-over-week — the closest
+      revenue-adjacent proxy this schema carries (no direct revenue
+      field exists on MerchantContext).
+
+  SearchSpike:
+    severity: 3
+    description: "GBP views spiked week-over-week — more people are searching for this merchant right now."
+
+  OfferExpiry:
+    severity: 3
+    description: "The merchant's offer catalog exists but has gone stale (no currently-active offer)."
+
+  FestivalWindow:
+    severity: 2
+    description: "A festival trigger is live and within its promotional window."
+
+  ListingIncomplete:
+    severity: 4
+    description: "The GBP listing is unverified or missing core identity fields (city/locality)."
+
+  CampaignFatigue:
+    severity: 3
+    description: "Several consecutive Vera nudges have gone unanswered — further generic nudging is unlikely to land."
+
+  CustomerRecall:
+    severity: 4
+    description: "A specific customer (lapsed_soft or lapsed_hard) is due a recall/winback touch."
+
+  DormantMerchant:
+    severity: 4
+    description: "No merchant-Vera conversation touch in the dormancy window."
+
+  WeekendOpportunity:
+    severity: 1
+    description: "`now` falls on a weekend — a footfall/booking opportunity window."
+
+  ReviewOpportunity:
+    severity: 2
+    description: "Recent review sentiment is net positive — worth amplifying or asking for more."
+
+  InventoryRisk:
+    severity: 4
+    description: "The merchant has no offers at all — nothing to promote."
+
+  LocalDemand:
+    severity: 3
+    description: "A category trend signal shows a strong year-over-year search increase."
+
+  ResearchInsight:
+    severity: 2
+    description: "The category has a research/compliance/trend digest available to share."
+
+  WeatherOpportunity:
+    severity: 2
+    description: "An active, non-expired weather-driven trigger (e.g. heatwave) is live."
+
+  CompetitionOpportunity:
+    severity: 3
+    description: "An active, non-expired competitor_opened trigger is live."
+
+# Composite signals: fire only when their constituent primitive signals
+# are ALL present (requires_all) or ANY are present (requires_any) in
+# the SignalSet already computed this pass. Evaluated after every
+# primitive signal has been detected.
+composite_signals:
+  UrgentWinback:
+    severity: 5
+    description: "The merchant itself has gone dormant AND a specific customer needs recall — compounding urgency."
+    requires_all: [DormantMerchant, CustomerRecall]
+
+  GrowthMomentum:
+    severity: 4
+    description: "Search demand is spiking and reviews are trending positive — a strong moment to double down."
+    requires_all: [SearchSpike, ReviewOpportunity]
+
+  StaleAndFatigued:
+    severity: 5
+    description: "Offer inventory has gone stale/empty AND generic nudges aren't landing — a different lever is needed."
+    requires_all: [CampaignFatigue]
+    requires_any: [OfferExpiry, InventoryRisk]

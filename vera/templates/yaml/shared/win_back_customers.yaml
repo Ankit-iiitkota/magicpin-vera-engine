@@ -1,0 +1,51 @@
+templates:
+  - id: win_back_customers_reciprocity
+    goal: WIN_BACK_CUSTOMERS
+    levers: [reciprocity]
+    cta_type: binary
+    required_slots: [customer_name]
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }} — {{ customer_name }}
+        hasn't been in for a while{% if days_since_last_visit %}
+        ({{ days_since_last_visit }} days){% endif %}. I've drafted a quick
+        check-in{% if active_offer_title %} with your {{ active_offer_title }}
+        offer{% endif %} — just say go and I'll send it.
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }} — {{ customer_name }}
+        kaafi din se nahi aaye{% if days_since_last_visit %}
+        ({{ days_since_last_visit }} din){% endif %}. Maine ek check-in
+        message taiyar kar diya hai{% if active_offer_title %} aapke
+        {{ active_offer_title }} offer ke saath{% endif %} — bas 'go' bolein,
+        bhej deti hoon.
+
+  - id: win_back_customers_curiosity
+    goal: WIN_BACK_CUSTOMERS
+    levers: [curiosity]
+    cta_type: open_ended
+    required_slots: [customer_name]
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, {{ customer_name }}
+        is on the list of customers who haven't come back in a while — worth
+        a nudge?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, {{ customer_name }}
+        un customers mein hain jo wapas nahi aaye — ek reminder bhejein?
+
+  - id: win_back_customers_loss_aversion
+    goal: WIN_BACK_CUSTOMERS
+    levers: [loss_aversion]
+    cta_type: binary
+    required_slots: [customer_name]
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, {{ customer_name }}
+        is at risk of lapsing{% if days_since_last_visit %} —
+        {{ days_since_last_visit }} days since their last visit{% endif %}.
+        Reply YES and I'll send a recall reminder before they churn.
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, {{ customer_name }}
+        lapse hone wale hain{% if days_since_last_visit %} —
+        {{ days_since_last_visit }} din ho gaye aakhri visit ko{% endif %}. YES
+        bolein, main recall reminder bhej deti hoon.

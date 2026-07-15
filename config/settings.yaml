@@ -1,0 +1,71 @@
+# ── Vera Engine — Default Configuration ───────────────────────────────────────
+# Values here are defaults. Override via environment variables or .env file.
+
+app:
+  name: vera-engine
+  version: "3.0.0"
+  team_name: "Team Vera"
+  contact_email: ""
+
+server:
+  host: "0.0.0.0"
+  port: 8080
+  reload: false
+
+redis:
+  url: "redis://localhost:6379/0"
+  fallback_to_memory: true
+  connect_timeout: 3
+
+composer:
+  max_candidates_per_trigger: 5
+  max_tick_latency_ms: 25000
+  max_reply_latency_ms: 25000
+  max_actions_per_tick: 20
+  max_actions_per_merchant_per_tick: 1
+  weights_file: config/weights.yaml
+
+feature_extraction:
+  lapse_threshold_days:
+    dentists: 180
+    pharmacies: 180
+    salons: 90
+    gyms: 90
+    restaurants: 60
+  ctr_dip_threshold: -0.15
+  ctr_spike_threshold: 0.20
+  dormancy_threshold_days: 14
+
+signal_detection:
+  definitions_file: vera/signals/yaml/signal_definitions.yaml
+
+goal_inference:
+  definitions_file: vera/goals/yaml/goal_definitions.yaml
+
+templates:
+  yaml_dir: vera/templates/yaml
+  fallback_dir: vera/templates/yaml/fallbacks
+  hot_reload: false
+
+suppression:
+  default_cooldown_hours: 24
+  opt_out_cooldown_days: 30
+
+conversation:
+  max_turns: 5
+  auto_reply_wait_seconds: 14400
+  auto_reply_3x_end: true
+
+startup_validation:
+  enabled: true
+  fail_fast: true
+  weight_sum_tolerance: 0.001
+
+metrics:
+  enabled: true
+  log_level: DEBUG
+  include_in_trace: true
+
+logging:
+  level: INFO
+  format: json

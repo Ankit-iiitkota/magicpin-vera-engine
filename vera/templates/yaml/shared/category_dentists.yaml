@@ -1,0 +1,219 @@
+# Category-specific templates — Dentists.
+# Voice: peer_clinical / respectful_collegial (magicpin-ai-challenge/dataset/categories/dentists.json).
+# salutation() already adds "Dr. " for this category; vocabulary here
+# leans on the category's own vocab_allowed list (scaling, OPG, RCT,
+# recall interval, caries, ...) and strictly avoids its vocab_taboo
+# list (guaranteed, 100% safe, completely cure, miracle, best in city,
+# doctor approved).
+#
+# Every body follows the same 3-beat structure: a concrete fact from
+# FeatureSet, a business-impact/recommendation sentence that says why
+# it matters, and a short, low-effort CTA — never combined into one
+# run-on clause the way the first pass wrote these.
+templates:
+  - id: dentists_recover_revenue_loss_aversion
+    goal: RECOVER_REVENUE
+    category: dentists
+    levers: [loss_aversion, specificity]
+    cta_type: open_ended
+    required_slots: [metric_label, metric_delta_pct]
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, your
+        {{ metric_label }} dropped {{ metric_delta_pct | abs_pct }} this
+        week{% if peer_avg_ctr %}, while peer clinics in {{ locality }}
+        are converting profile views at {{ peer_avg_ctr | pct }}{% endif %}.
+        That gap usually shows up as fewer chair bookings if it isn't
+        addressed soon. Want me to pull the exact cause so we can act on
+        it this week?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, is hafte
+        aapke {{ metric_label }} mein {{ metric_delta_pct | abs_pct }} ki
+        giravat aayi hai{% if peer_avg_ctr %}, jab ki {{ locality }} ke
+        peer clinics {{ peer_avg_ctr | pct }} pe convert kar rahe
+        hain{% endif %}. Agar theek na kiya toh chair bookings kam ho
+        sakti hain. Is hafte hi wajah dhoondh loon?
+
+  - id: dentists_win_back_customers_reciprocity
+    goal: WIN_BACK_CUSTOMERS
+    category: dentists
+    levers: [reciprocity, loss_aversion]
+    cta_type: binary
+    required_slots: [customer_name]
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }},
+        {{ customer_name }} is overdue for their recall
+        visit{% if days_since_last_visit %} — {{ days_since_last_visit }}
+        days since the last one{% endif %}. Gaps like this raise caries
+        risk and usually mean lower retention if nobody follows up. I've
+        already drafted a recall reminder{% if active_offer_title %}
+        with your {{ active_offer_title }} offer{% endif %} — just say go
+        and I'll send it.
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }},
+        {{ customer_name }} ka recall visit due
+        hai{% if days_since_last_visit %} — {{ days_since_last_visit }}
+        din ho gaye{% endif %}. Itna gap caries risk badha sakta hai aur
+        follow-up na hone par retention bhi kam hoti hai. Maine recall
+        reminder taiyar kar diya hai{% if active_offer_title %}
+        {{ active_offer_title }} offer ke saath{% endif %} — 'go' bolein,
+        bhej deti hoon.
+
+  - id: dentists_reduce_churn_asking_merchant
+    goal: REDUCE_CHURN
+    category: dentists
+    levers: [asking_merchant, reciprocity]
+    cta_type: open_ended
+    required_slots: []
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}{% if days_since_last_touch %},
+        it's been {{ days_since_last_touch }} days since we last
+        spoke{% endif %} and I don't want to keep pinging without being
+        useful — I'll tailor what I send around whatever's actually
+        relevant to you right now. Quick clinical question: is your
+        patient mix leaning more cosmetic (aligners, whitening) or
+        restorative (RCT, crowns) this month?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}{% if days_since_last_touch %},
+        {{ days_since_last_touch }} din ho gaye baat kiye{% endif %}, aur
+        bina kaam ki cheez ke ping nahi karna chahti — jo aapke liye
+        abhi relevant hai, wahi bhejungi. Ek chhota clinical sawaal: is
+        mahine patients zyada cosmetic (aligners, whitening) mein hain ya
+        restorative (RCT, crowns) mein?
+
+  - id: dentists_promote_offers_specificity
+    goal: PROMOTE_OFFERS
+    category: dentists
+    levers: [specificity, loss_aversion]
+    cta_type: binary
+    required_slots: [inventory_health]
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, you don't have
+        a live offer right now, which usually means fewer new-patient
+        enquiries convert into bookings{% if suggested_offer_title %}.
+        {{ suggested_offer_title }} is typically the strongest entry
+        point for a {{ category_slug }} practice{% endif %}. Want me to
+        activate it today?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, abhi koi live
+        offer nahi hai, jiski wajah se naye-patient enquiries kam convert
+        hoti hain{% if suggested_offer_title %}.
+        {{ suggested_offer_title }} ek {{ category_slug }} practice ke
+        liye sabse strong entry point hota hai{% endif %}. Aaj activate
+        kar doon?
+
+  - id: dentists_improve_listings_loss_aversion
+    goal: IMPROVE_LISTINGS
+    category: dentists
+    levers: [loss_aversion, specificity]
+    cta_type: binary
+    required_slots: []
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, your profile
+        is {% if not verified %}unverified{% else %}missing
+        {{ missing_fields | join(' and ') if missing_fields else 'a few details' }}{% endif %}.
+        That usually means patients searching for {{ category_slug }}
+        near {{ locality }} skip past it before they even see your
+        reviews. Want me to fix it now — it's a 2-minute update?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, aapki profile
+        {% if not verified %}unverified{% else %}
+        {{ missing_fields | join(' aur ') if missing_fields else 'kuch details' }} mein
+        incomplete{% endif %} hai. {{ locality }} mein {{ category_slug }}
+        dhoondh rahe patients aapke reviews dekhne se pehle hi aise
+        listings skip kar dete hain. Abhi theek kar doon — 2 minute ka
+        kaam hai?
+
+  - id: dentists_collect_reviews_social_proof
+    goal: COLLECT_REVIEWS
+    category: dentists
+    levers: [social_proof, reciprocity]
+    cta_type: binary
+    required_slots: []
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, your reviews
+        are trending positive{% if top_review_theme %}, with patients
+        repeatedly mentioning {{ top_review_theme }}{% endif %}.
+        Highlighting that in a fresh GBP post usually pulls in more
+        new-patient searches. I've already drafted one — want me to
+        publish it?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, reviews
+        positive trend mein hain{% if top_review_theme %}, patients baar
+        baar {{ top_review_theme }} ka zikar kar rahe hain{% endif %}. Isko
+        highlight karta GBP post naye-patient searches badhata hai. Maine
+        ek taiyar kar diya hai — publish kar doon?
+
+  - id: dentists_increase_sales_specificity
+    goal: INCREASE_SALES
+    category: dentists
+    levers: [specificity, loss_aversion]
+    cta_type: binary
+    required_slots: []
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }},
+        {% if trend_query %}'{{ trend_query }}' searches are up
+        {{ trend_delta_yoy | pct }} in {{ city }}{% elif season_note %}
+        {{ season_note }}{% elif festival_days_until %}exam-season and
+        wedding-whitening bookings pick up in the next
+        {{ festival_days_until }} days{% elif views_delta_pct and views_delta_pct > 0 %}
+        your profile views are already up
+        {{ views_delta_pct | pct(signed=true) }} this month{% else %}your
+        weekend slots typically fill faster for {{ category_slug }} in
+        {{ locality }}{% endif %}. Clinics that post while demand is high
+        usually convert more of it into bookings; ones without a fresh
+        post tend to miss the window. Reply YES and I'll schedule one
+        today.
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }},
+        {% if trend_query %}'{{ trend_query }}' ki searches
+        {{ trend_delta_yoy | pct }} badhi hain {{ city }} mein{% elif season_note %}
+        {{ season_note }}{% elif festival_days_until %}agle
+        {{ festival_days_until }} din mein exam-season aur wedding-whitening
+        bookings badhti hain{% elif views_delta_pct and views_delta_pct > 0 %}
+        aapke profile views is mahine
+        {{ views_delta_pct | pct(signed=true) }} badh chuke hain{% else %}
+        weekend slots {{ category_slug }} ke liye {{ locality }} mein jaldi
+        bhar jaate hain{% endif %}. Demand high hone par post karne wale
+        clinics zyada bookings convert karte hain; bina post ke yeh window
+        miss ho jaata hai. YES bolein, aaj hi post schedule kar deti hoon.
+
+  - id: dentists_increase_visibility_specificity
+    goal: INCREASE_VISIBILITY
+    category: dentists
+    levers: [specificity, social_proof]
+    cta_type: open_ended
+    required_slots: []
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}{% if competitor_trigger %},
+        a new {{ category_slug }} practice just opened near
+        {{ locality }}{% elif digest_title %}, this week's clinical read:
+        {{ digest_title }}{% if digest_source %}
+        ({{ digest_source }}){% endif %}{% else %}, your profile views moved
+        {{ views_delta_pct | pct(signed=true) }} this week{% endif %}.
+        {% if competitor_trigger %}Practices that respond fast to new
+        competition usually hold onto their search ranking{% else %}Acting
+        on research like this early usually keeps you ahead of peers who
+        wait{% endif %}. Want the details{% if competitor_trigger %} on
+        how your listing compares{% else %} so you can flag it for your
+        high-risk patients{% endif %}?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}{% if competitor_trigger %},
+        {{ locality }} ke paas ek nayi {{ category_slug }} practice khuli
+        hai{% elif digest_title %}, is hafte ka clinical update:
+        {{ digest_title }}{% if digest_source %}
+        ({{ digest_source }}){% endif %}{% else %}, is hafte views
+        {{ views_delta_pct | pct(signed=true) }} badle hain{% endif %}.
+        {% if competitor_trigger %}Naye competition pe jaldi react karne
+        wale practices apni search ranking bachate hain{% else %}Aisi
+        research pe jaldi action lene se peers se aage rehte hain{% endif %}.
+        Details chahiye{% if competitor_trigger %} yeh dekhne ke liye ki
+        aapki listing kaisi compare karti hai{% else %} high-risk patients
+        ke liye flag karne ko{% endif %}?

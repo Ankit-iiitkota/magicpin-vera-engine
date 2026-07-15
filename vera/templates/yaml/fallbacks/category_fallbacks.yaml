@@ -1,0 +1,21 @@
+# Level-1 fallback: a category-flavoured generic check-in, used when the
+# normal candidate/template pipeline can't produce a confident match
+# (e.g. every scored candidate falls below the FallbackChain's
+# confidence floor). Still uses salutation()'s category-aware voice
+# (e.g. "Dr." for dentists) even though it carries no goal-specific facts.
+templates:
+  - id: category_fallback_generic_checkin
+    goal: "*"
+    levers: [curiosity]
+    cta_type: open_ended
+    required_slots: []
+    fallback_level: 1
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, checking in on
+        your {{ category_slug }} listing — anything I can help update this
+        week?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, aapki
+        {{ category_slug }} listing check kar rahi thi — is hafte kuch update
+        karna hai kya?

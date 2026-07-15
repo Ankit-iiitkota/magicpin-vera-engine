@@ -1,0 +1,49 @@
+# Goal inference rules.
+#
+# Evaluated in ascending `priority` order (1 = most urgent, checked
+# first). Each rule fires if ANY of its `requires_any` signal kinds is
+# present in the already-computed SignalSet. The first rule to fire
+# becomes primary_goal; every other rule that ALSO fires contributes to
+# secondary_goals (deduplicated, priority order preserved).
+#
+# Priority rationale (most to least urgent):
+#   1-2  active, measurable loss (revenue, a specific customer)
+#   3-4  disengagement / nothing-to-sell risk
+#   5-6  hygiene (incomplete listing, review opportunity)
+#   7-8  opportunistic upside (footfall, visibility)
+# If nothing matches at all, GoalInferenceEngine falls back to
+# goal_context.DEFAULT_GOAL rather than raising — "no urgent signal
+# fired" is a normal state, not an error.
+
+rules:
+  - goal: RECOVER_REVENUE
+    priority: 1
+    requires_any: [RevenueDrop]
+
+  - goal: WIN_BACK_CUSTOMERS
+    priority: 2
+    requires_any: [CustomerRecall, UrgentWinback]
+
+  - goal: REDUCE_CHURN
+    priority: 3
+    requires_any: [CampaignFatigue, DormantMerchant, StaleAndFatigued]
+
+  - goal: PROMOTE_OFFERS
+    priority: 4
+    requires_any: [OfferExpiry, InventoryRisk]
+
+  - goal: IMPROVE_LISTINGS
+    priority: 5
+    requires_any: [ListingIncomplete]
+
+  - goal: COLLECT_REVIEWS
+    priority: 6
+    requires_any: [ReviewOpportunity]
+
+  - goal: INCREASE_SALES
+    priority: 7
+    requires_any: [WeekendOpportunity, FestivalWindow, LocalDemand, WeatherOpportunity, GrowthMomentum]
+
+  - goal: INCREASE_VISIBILITY
+    priority: 8
+    requires_any: [SearchSpike, ResearchInsight, CompetitionOpportunity]

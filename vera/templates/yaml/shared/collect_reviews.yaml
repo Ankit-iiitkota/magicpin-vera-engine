@@ -1,0 +1,47 @@
+templates:
+  - id: collect_reviews_social_proof
+    goal: COLLECT_REVIEWS
+    levers: [social_proof]
+    cta_type: binary
+    required_slots: []
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, your recent
+        reviews are trending positive{% if top_review_theme %} — customers
+        keep mentioning {{ top_review_theme }}{% endif %}. Want a quick post
+        highlighting that?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, recent reviews
+        positive trend mein hain{% if top_review_theme %} — customers baar
+        baar {{ top_review_theme }} ka zikar kar rahe hain{% endif %}. Isko
+        highlight karta ek post banayein?
+
+  - id: collect_reviews_reciprocity
+    goal: COLLECT_REVIEWS
+    levers: [reciprocity]
+    cta_type: binary
+    required_slots: []
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, I've drafted a
+        thank-you post for your recent reviews — just say go and I'll
+        publish it.
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, maine recent
+        reviews ke liye ek thank-you post taiyar kar diya hai — 'go' bolein,
+        publish kar deti hoon.
+
+  - id: collect_reviews_asking_merchant
+    goal: COLLECT_REVIEWS
+    levers: [asking_merchant]
+    cta_type: open_ended
+    required_slots: []
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, I'd like to turn
+        your next GBP post around what customers compliment you on most —
+        what's the one thing that comes up again and again?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, agla GBP post
+        usi cheez pe banana chahti hoon jiski customers sabse zyada tareef
+        karte hain — kaunsi baat baar baar aati hai?

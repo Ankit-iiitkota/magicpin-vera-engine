@@ -1,0 +1,47 @@
+templates:
+  - id: improve_listings_loss_aversion
+    goal: IMPROVE_LISTINGS
+    levers: [loss_aversion]
+    cta_type: binary
+    required_slots: []
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, your listing is
+        {% if not verified %}unverified{% else %}missing some
+        details{% endif %} — that's likely costing you visibility in search.
+        Want me to fix it now?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, aapki listing
+        {% if not verified %}unverified{% else %}incomplete{% endif %} hai —
+        isse search visibility kam ho rahi hogi. Abhi theek kar doon?
+
+  - id: improve_listings_specificity
+    goal: IMPROVE_LISTINGS
+    levers: [specificity]
+    cta_type: binary
+    required_slots: []
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, your profile is
+        missing{% if missing_fields %} {{ missing_fields | join(' and ') }}{% else %}
+        verification{% endif %} — a 2-minute fix. Shall I go ahead?
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, aapki profile
+        mein{% if missing_fields %} {{ missing_fields | join(' aur ') }}{% else %}
+        verification{% endif %} missing hai — 2 minute ka kaam hai. Aage
+        badhoon?
+
+  - id: improve_listings_reciprocity
+    goal: IMPROVE_LISTINGS
+    levers: [reciprocity]
+    cta_type: binary
+    required_slots: []
+    body:
+      en: >-
+        {{ salutation(owner_first_name, category_slug) }}, I've spotted the
+        gaps in your GBP listing — just say go and I'll fill in what I can
+        from what I already have.
+      hi_en: >-
+        {{ salutation(owner_first_name, category_slug) }}, maine aapki GBP
+        listing mein gaps dekhe hain — 'go' bolein, jo mere paas hai usse main
+        abhi update kar deti hoon.
