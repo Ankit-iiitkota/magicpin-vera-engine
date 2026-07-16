@@ -39,6 +39,7 @@ from vera.features.extractor import FeatureExtractor
 from vera.goals.goal_inferrer import GoalInferenceEngine
 from vera.ranking.candidate_ranker import CandidateRanker
 from vera.rules.rule_engine import RuleEngine
+from vera.engine.trigger_grounding import ground
 from vera.scoring.compulsion_checker import CompulsionChecker
 from vera.signals.signal_detector import SignalDetector
 from vera.tracing.trace_builder import TraceBuilder, build_rationale
@@ -89,6 +90,21 @@ class Composer:
         *,
         now: datetime | None = None,
     ) -> ComposedMessage:
+        # Trigger-payload-grounded kinds compose directly from the trigger's
+        # own facts (deadline, quote, festival date, dip %) — the generic
+        # pipeline below infers goals from merchant state only and would
+        # never mention them. See vera.engine.trigger_grounding.
+        grounded = ground(category, merchant, trigger, customer)
+        if grounded is not None:
+            logger.info(
+                "compose_decision",
+                trigger_id=trigger.id,
+                merchant_id=merchant.merchant_id,
+                trigger_kind=trigger.kind,
+                grounded=True,
+            )
+            return grounded
+
         features = self._feature_extractor.extract(category, merchant, trigger, customer, now=now)
         signals = self._signal_detector.detect(features)
         goal_context = self._goal_inference_engine.infer(signals)

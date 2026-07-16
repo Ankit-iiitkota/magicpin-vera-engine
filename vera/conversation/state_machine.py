@@ -17,14 +17,17 @@ challenge-brief.md Pattern B: Vera tries once, then stops.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from vera.conversation.auto_reply_detector import AutoReplyDetector
+from vera.conversation.grounded_replies import commit_reply, continue_reply
 from vera.conversation.intent_classifier import IntentClassifier
 from vera.conversation.reply_composer import ReplyComposer
 
 if TYPE_CHECKING:
+    from vera.conversation.reply_facts import ReplyFacts
     from vera.store.conversation_store import ConversationState
 
 __all__ = ["ConversationStateMachine", "ReplyDecision"]
@@ -59,7 +62,12 @@ class ConversationStateMachine:
         self._wait_seconds = wait_seconds
 
     def decide(
-        self, state: ConversationState, message: str, turn_number: int, language: str
+        self,
+        state: ConversationState,
+        message: str,
+        turn_number: int,
+        language: str,
+        facts: ReplyFacts | None = None,
     ) -> ReplyDecision:
         if state is None:
             raise TypeError("state is required")
@@ -86,6 +94,13 @@ class ConversationStateMachine:
             )
 
         intent = self._intent_classifier.classify(message)
+
+        # A question about THIS conversation's trigger (film speeds for a
+        # DCI regulation, slots for a recall, ...) is on-topic even when it
+        # contains none of the classifier's generic keywords — reclassify it
+        # as neutral so it gets a grounded answer, not an off-topic brushoff.
+        if intent == "off_topic" and facts is not None and self._mentions_topic(message, facts):
+            intent = "neutral"
 
         if intent == "hostile":
             if self._already_tried(state, "hostile_deescalate"):
@@ -137,9 +152,15 @@ class ConversationStateMachine:
             )
 
         if intent == "commit":
+            # Grounded first: confirm the SPECIFIC deliverable this
+            # conversation's trigger promised, with its real numbers/dates.
+            # The generic composer line is only the no-context fallback.
+            body = commit_reply(language, facts) or self._reply_composer.commit_confirmation(
+                language
+            )
             return ReplyDecision(
                 action="send",
-                body=self._reply_composer.commit_confirmation(language),
+                body=body,
                 cta="open_ended",
                 wait_seconds=None,
                 rationale="explicit commitment detected — switching straight to action, not re-qualifying",
@@ -156,15 +177,38 @@ class ConversationStateMachine:
                 engagement_tag="off_topic_redirect",
             )
 
+        # Neutral/technical follow-up: answer with the conversation's own
+        # trigger facts (regulation summary, dip numbers, review quote, ...)
+        # instead of a content-free "what next?".
+        body = continue_reply(language, facts) or self._reply_composer.continue_conversation(
+            language
+        )
         return ReplyDecision(
             action="send",
-            body=self._reply_composer.continue_conversation(language),
+            body=body,
             cta="open_ended",
             wait_seconds=None,
-            rationale="neutral engaged reply — continuing the conversation",
+            rationale="neutral engaged reply — continuing with the trigger's own facts",
             engagement_tag="continue",
         )
 
     @staticmethod
     def _already_tried(state: ConversationState, engagement_tag: str) -> bool:
         return any(t.get("engagement") == engagement_tag for t in state.turns)
+
+    _TOPIC_STOPWORDS = frozenset(
+        {
+            "what", "which", "when", "where", "will", "would", "should", "could",
+            "have", "does", "this", "that", "there", "please", "want", "need",
+            "know", "about", "with", "from", "your", "yours", "mera", "kaise",
+            "kya", "karna", "hona", "chahiye", "batao", "more", "much", "many",
+        }
+    )
+
+    @classmethod
+    def _mentions_topic(cls, message: str, facts: ReplyFacts) -> bool:
+        corpus = facts.topic_text
+        if not corpus:
+            return False
+        words = {w for w in re.findall(r"[a-z]{4,}", message.lower())}
+        return any(w in corpus for w in words - cls._TOPIC_STOPWORDS)

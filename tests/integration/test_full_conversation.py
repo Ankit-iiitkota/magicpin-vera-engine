@@ -133,9 +133,10 @@ def test_judge_scenario_hostile_message_apologizes_gracefully(env):
 
     r = _reply(client, "conv_hostile", hostile, 2, mid="m_test")
 
+    # "Stop messaging me" is an explicit opt-out — it must end the
+    # conversation immediately (no de-escalation send, no further nudges).
     body = r.json()
-    assert body["action"] == "send"
-    assert any(w in body["body"].lower() for w in ["sorry", "apolog", "won't"])
+    assert body["action"] == "end"
 
 
 def test_judge_scenario_auto_reply_each_conversation_is_independent(env):

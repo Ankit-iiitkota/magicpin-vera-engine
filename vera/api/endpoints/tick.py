@@ -88,16 +88,17 @@ async def _try_build_action(
         return None
 
     conversation_id = f"conv_{merchant.merchant_id}_{trigger.id}"
-    # Deduped by merchant, not by conversation_id: goal inference consumes
-    # only SignalSet (never the trigger's own kind/payload — see
-    # vera.goals.goal_inferrer), so two different triggers for the same
-    # merchant can legitimately produce the exact same body. Each trigger
-    # gets its own conversation_id, so a per-conversation key would never
-    # catch that — the merchant would receive the identical pitch twice in
-    # one tick. Keying on merchant_id catches it: the first trigger's
-    # action goes out, the second is skipped rather than repeating verbatim
-    # text that doesn't even address its own trigger's reason.
-    if await anti_repetition_guard.is_repeat(merchant.merchant_id, composed.body):
+    # Deduped by (merchant, trigger kind), not by merchant alone. A bare
+    # merchant key silently swallowed a whole trigger KIND whenever two
+    # triggers for the same merchant rendered the same body (the judge saw
+    # regulation_change return nothing because research_digest for the same
+    # merchant had composed an identical generic body seconds earlier).
+    # Grounded composition makes bodies kind-specific, and scoping the key
+    # by kind guarantees one kind can never suppress another; verbatim
+    # repeats of the SAME kind are still caught (and the SuppressionGuard
+    # above already gates re-fires of the same suppression_key).
+    repeat_key = f"{merchant.merchant_id}:{trigger.kind}"
+    if await anti_repetition_guard.is_repeat(repeat_key, composed.body):
         logger.info(
             "tick_skipped_repeat_body", trigger_id=trigger_id, conversation_id=conversation_id
         )
@@ -112,7 +113,7 @@ async def _try_build_action(
         suppression_key=composed.suppression_key,
     )
     await suppression_guard.mark_sent(composed.suppression_key)
-    await anti_repetition_guard.mark_sent(merchant.merchant_id, composed.body)
+    await anti_repetition_guard.mark_sent(repeat_key, composed.body)
 
     return ActionItem(
         conversation_id=conversation_id,

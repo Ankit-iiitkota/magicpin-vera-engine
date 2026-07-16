@@ -86,27 +86,30 @@ def test_reply_wait_message_returns_wait_with_seconds(client):
 def test_reply_hostile_message_deescalates_once_then_ends_on_repeat(client):
     conversation_id = "conv_hostile"
 
-    first = _reply(client, conversation_id, "This is spam, stop bothering me", 1)
+    first = _reply(client, conversation_id, "This is rubbish, you people are useless", 1)
     assert first.json()["action"] == "send"
 
     second = _reply(client, conversation_id, "You people are useless, this is spam", 2)
     assert second.json()["action"] == "end"
 
 
+def test_reply_opt_out_ends_immediately_even_when_hostile(client):
+    r = _reply(client, "conv_optout", "Stop bothering me, this is spam", 1)
+    assert r.json()["action"] == "end"
+
+
 def test_reply_auto_reply_pattern_nudges_once_then_ends(client):
     conversation_id = "conv_autoreply"
     canned = "We are currently unavailable. We will get back to you soon."
 
+    # Canned phrasing is detected on FIRST sight (challenge-brief.md §3
+    # pain point 1) — one nudge for the owner, then a clean exit instead
+    # of burning turns waiting for the verbatim-repeat threshold.
     r1 = _reply(client, conversation_id, canned, 1)
-    r2 = _reply(client, conversation_id, canned, 2)
-    r3 = _reply(client, conversation_id, canned, 3)
-
     assert r1.json()["action"] == "send"
-    assert r2.json()["action"] == "send"
-    assert r3.json()["action"] == "send"
 
-    r4 = _reply(client, conversation_id, canned, 4)
-    assert r4.json()["action"] == "end"
+    r2 = _reply(client, conversation_id, canned, 2)
+    assert r2.json()["action"] == "end"
 
 
 def test_reply_max_turns_reached_returns_end(client):

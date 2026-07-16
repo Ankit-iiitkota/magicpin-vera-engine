@@ -14,7 +14,7 @@ classifier = IntentClassifier()
 
 @pytest.mark.parametrize(
     "message",
-    ["This is spam", "You're useless", "Stop harassing me", "This is nonsense"],
+    ["This is spam", "You're useless", "You harass people", "This is nonsense"],
 )
 def test_hostile_messages_are_classified_hostile(message):
     assert classifier.classify(message) == "hostile"
@@ -25,6 +25,16 @@ def test_hostile_messages_are_classified_hostile(message):
     ["Not interested, thanks", "No thanks", "Please unsubscribe me", "nahi chahiye"],
 )
 def test_decline_messages_are_classified_decline(message):
+    assert classifier.classify(message) == "decline"
+
+
+@pytest.mark.parametrize(
+    "message",
+    ["Stop harassing me", "Stop messaging me. This is useless spam.", "band karo yeh sab"],
+)
+def test_opt_out_beats_hostility(message):
+    # An explicit stop/opt-out must end the conversation immediately, even
+    # when the same message is also abusive — decline outranks hostile.
     assert classifier.classify(message) == "decline"
 
 

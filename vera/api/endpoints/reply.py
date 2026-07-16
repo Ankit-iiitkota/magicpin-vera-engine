@@ -45,6 +45,7 @@ async def reply(
         customer_id=body.customer_id,
         message=body.message,
         turn_number=body.turn_number,
+        from_role=body.from_role,
     )
 
     logger.info(

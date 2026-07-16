@@ -5,9 +5,13 @@ Deterministic, keyword/regex classification of a merchant's reply text
 into one of six intents, checked in this precedence order (a message
 can match more than one category; the first match wins):
 
-  1. hostile        — abusive language (challenge-testing-brief.md §4
-                       Phase 4 "hostile/off-topic" replay scenario)
-  2. decline         — explicit not-interested / stop, without abuse
+  1. decline         — explicit not-interested / stop / opt-out; checked
+                       FIRST so "Stop messaging me. This is spam." ends
+                       immediately instead of getting a de-escalation
+                       send (opt-out beats abuse handling)
+  2. hostile         — abusive language without an explicit opt-out
+                       (challenge-testing-brief.md §4 Phase 4
+                       "hostile/off-topic" replay scenario)
   3. wait_requested  — merchant asked for time
   4. commit          — explicit "yes"/"let's do it"/"go ahead"
                        (challenge-brief.md's Pattern D: a commit must
@@ -27,7 +31,8 @@ _HOSTILE_RE = re.compile(
     r"\b(spam|useless|stupid|shut up|rubbish|nonsense|harass\w*)\b", re.IGNORECASE
 )
 _DECLINE_RE = re.compile(
-    r"\b(not interested|no thanks|unsubscribe|leave me alone|stop|nahi chahiye)\b", re.IGNORECASE
+    r"\b(not interested|no thanks|unsubscribe|leave me alone|stop|nahi chahiye|mat bhejo|band karo|remove me|don'?t (message|contact))\b",
+    re.IGNORECASE,
 )
 _WAIT_RE = re.compile(r"\b(later|busy|not now|give me time|abhi nahi|baad mein)\b", re.IGNORECASE)
 _COMMIT_RE = re.compile(
@@ -44,10 +49,10 @@ class IntentClassifier:
     def classify(self, message: str) -> str:
         if not message or not message.strip():
             return "neutral"
-        if _HOSTILE_RE.search(message):
-            return "hostile"
         if _DECLINE_RE.search(message):
             return "decline"
+        if _HOSTILE_RE.search(message):
+            return "hostile"
         if _WAIT_RE.search(message):
             return "wait_requested"
         if _COMMIT_RE.search(message):
